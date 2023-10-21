@@ -12,6 +12,7 @@ import com.communitycart.BackEnd.repository.SellerRepository;
 import com.communitycart.BackEnd.repository.UsersRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public class UserService {
     private CustomerRepository customerRepository;
     @Autowired
     private SellerRepository sellerRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public User getUser(String emailId){
         return usersRepository.findByEmailId(emailId);
     }
@@ -52,7 +55,7 @@ public class UserService {
     }
 
     public Customer addCustomer(CustomerDTO customer){
-        createUser(new User(customer.getEmailId(), "Customer"));
+        createUser(new User(customer.getEmailId(), passwordEncoder.encode(customer.getPassword()), "Customer"));
         Customer customerEntity = new Customer();
         customerEntity.setName(customer.getName());
         customerEntity.setEmailId(customer.getEmailId());
@@ -89,19 +92,19 @@ public class UserService {
     }
 
     public Seller addSeller(SellerDTO seller){
-        createUser(new User(seller.getEmail(), "Seller"));
+        createUser(new User(seller.getEmail(), passwordEncoder.encode(seller.getPassword()), "Seller"));
         Seller sellerEntity = new Seller();
         sellerEntity.setName(seller.getName());
         sellerEntity.setEmail(seller.getEmail());
         sellerEntity.setContactPhoneNo(seller.getContactPhoneNo());
         sellerEntity.setAlternatePhoneNo(seller.getAlternatePhoneNo());
-        sellerEntity.setUpiPhoneNumber(seller.getUpiPhoneNumber());
+        sellerEntity.setUpiPhoneNumber(seller.getShop().getUpiPhoneNumber());
         sellerEntity.setAadharNo(seller.getAadharNo());
-        sellerEntity.setRegNo(seller.getRegNo());
-        sellerEntity.setQrCodeLink(seller.getQrCodeLink());
-        sellerEntity.setGstin(seller.getGstin());
-        sellerEntity.setShopName(seller.getShopName());
-        Address address = createAddress(seller.getAddress());
+        sellerEntity.setRegNo(seller.getShop().getRegNo());
+        sellerEntity.setQrCodeLink(seller.getShop().getQrCodeLink());
+        sellerEntity.setGstin(seller.getShop().getGstin());
+        sellerEntity.setShopName(seller.getShop().getShopName());
+        Address address = createAddress(seller.getShop().getAddress());
         sellerEntity.setAddress(address);
         return sellerRepository.save(sellerEntity);
     }

@@ -17,13 +17,10 @@ public class SellerDTO {
 
     private String name;
     private String email;
-    private String shopName;
     private String contactPhoneNo;
     private String alternatePhoneNo;
-    private String upiPhoneNumber;
-    private AddressDTO address;
-    private String regNo;
     private String aadharNo;
-    private String qrCodeLink;
-    private String gstin;
+    private String password;
+    private Shop shop;
+
 }

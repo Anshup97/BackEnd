@@ -6,6 +6,8 @@ import com.communitycart.BackEnd.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoryService {
     @Autowired
@@ -18,23 +20,33 @@ public class CategoryService {
         category1.setCategoryDescription(category.getCategoryDescription());
         category1.setCategoryImage(category.getCategoryImage());
         category1.setCategorySlug(category.getCategorySlug());
-        if(categoryRepository.findByCategoryName(category.getCategoryName()) == null){
-            return categoryRepository.save(category1);
-        } else {
-            return categoryRepository.updateCategoryByCategoryName(category.getCategoryName(), category1);
-        }
+        category1.setCreatedAt(category.getCreatedAt());
+        category1.setUpdatedAt(category.getUpdatedAt());
+        return categoryRepository.save(category1);
+
     }
 
-    public String deleteCategory(Long categoryId){
+    public Category deleteCategory(Long categoryId){
         if(categoryRepository.findByCategoryId(categoryId) != null){
-            categoryRepository.deleteByCategoryId(categoryId);
-            return "Category deleted with ID - " + categoryId.toString();
+            return categoryRepository.deleteByCategoryId(categoryId);
+
         }
-        return "Category Not Found.";
+        return null;
     }
 
     public Category updateCategory(CategoryDTO category){
+        if(categoryRepository.findByCategoryName(category.getCategoryName()) == null){
+            return null;
+        }
        return addCategory(category);
 
+    }
+
+    public List<Category> getCategories(){
+        return categoryRepository.findAll();
+    }
+
+    public Category getCategoryById(Long categoryId) {
+        return categoryRepository.findByCategoryId(categoryId);
     }
 }

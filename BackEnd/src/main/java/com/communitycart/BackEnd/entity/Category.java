@@ -28,5 +28,6 @@ public class Category {
     private String categoryDescription;
     private String categoryImage;
     private String categorySlug;
-
+    private String createdAt;
+    private String updatedAt;
 }
