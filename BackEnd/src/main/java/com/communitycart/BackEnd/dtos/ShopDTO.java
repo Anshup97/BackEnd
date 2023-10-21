@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Shop {
+public class ShopDTO {
 
     private String shopName;
     private List<String> shopImages;
@@ -20,6 +20,6 @@ public class Shop {
     private String regNo;
     private String qrCodeLink;
     private String gstin;
-    private List<Product> products;
+
 
 }

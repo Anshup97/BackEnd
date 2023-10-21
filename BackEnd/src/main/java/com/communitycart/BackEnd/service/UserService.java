@@ -3,10 +3,7 @@ package com.communitycart.BackEnd.service;
 import com.communitycart.BackEnd.dtos.AddressDTO;
 import com.communitycart.BackEnd.dtos.CustomerDTO;
 import com.communitycart.BackEnd.dtos.SellerDTO;
-import com.communitycart.BackEnd.entity.Address;
-import com.communitycart.BackEnd.entity.Customer;
-import com.communitycart.BackEnd.entity.Seller;
-import com.communitycart.BackEnd.entity.User;
+import com.communitycart.BackEnd.entity.*;
 import com.communitycart.BackEnd.repository.CustomerRepository;
 import com.communitycart.BackEnd.repository.SellerRepository;
 import com.communitycart.BackEnd.repository.UsersRepository;
@@ -14,7 +11,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,9 @@ public class UserService {
     private SellerRepository sellerRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ImageStorageService imageStorageService;
     public User getUser(String emailId){
         return usersRepository.findByEmailId(emailId);
     }
@@ -55,7 +60,7 @@ public class UserService {
     }
 
     public Customer addCustomer(CustomerDTO customer){
-        createUser(new User(customer.getEmailId(), passwordEncoder.encode(customer.getPassword()), "Customer"));
+        createUser(new User(customer.getEmailId(), passwordEncoder.encode(customer.getPassword()), "CUSTOMER"));
         Customer customerEntity = new Customer();
         customerEntity.setName(customer.getName());
         customerEntity.setEmailId(customer.getEmailId());
@@ -91,21 +96,19 @@ public class UserService {
         return customerRepository.deleteByEmailId(customer.getEmailId());
     }
 
-    public Seller addSeller(SellerDTO seller){
-        createUser(new User(seller.getEmail(), passwordEncoder.encode(seller.getPassword()), "Seller"));
+    public Seller addSeller(SellerDTO seller) throws IOException {
+        String encodedPassword = passwordEncoder.encode(seller.getPassword());
         Seller sellerEntity = new Seller();
         sellerEntity.setName(seller.getName());
         sellerEntity.setEmail(seller.getEmail());
         sellerEntity.setContactPhoneNo(seller.getContactPhoneNo());
-        sellerEntity.setAlternatePhoneNo(seller.getAlternatePhoneNo());
-        sellerEntity.setUpiPhoneNumber(seller.getShop().getUpiPhoneNumber());
         sellerEntity.setAadharNo(seller.getAadharNo());
-        sellerEntity.setRegNo(seller.getShop().getRegNo());
-        sellerEntity.setQrCodeLink(seller.getShop().getQrCodeLink());
-        sellerEntity.setGstin(seller.getShop().getGstin());
-        sellerEntity.setShopName(seller.getShop().getShopName());
-        Address address = createAddress(seller.getShop().getAddress());
-        sellerEntity.setAddress(address);
+        MultipartFile profilePhoto = seller.getProfilePhoto();
+        if(profilePhoto != null){
+            ImageData imageData = imageStorageService.uploadImage(profilePhoto);
+            sellerEntity.setProfilePhotoId(imageData.getId());
+        }
+        createUser(new User(seller.getEmail(), encodedPassword, "SELLER"));
         return sellerRepository.save(sellerEntity);
     }
 
@@ -114,6 +117,20 @@ public class UserService {
         return sellerRepository.deleteByEmail(seller.getEmail());
     }
 
+    public Seller updateSeller(Seller seller){
+        Seller seller1 = sellerRepository.findByEmail(seller.getEmail());
+        seller1.setName(seller.getName());
+        seller1.setContactPhoneNo(seller.getContactPhoneNo());
+        seller1.setAadharNo(seller.getAadharNo());
+        seller1.setShopName(seller.getShopName());
+        seller1.setShopImages(seller.getShopImages());
+        seller1.setUpiPhoneNumber(seller.getUpiPhoneNumber());
+        seller1.setAddress(seller.getAddress());
+        seller1.setQrCodeLink(seller.getQrCodeLink());
+        seller1.setGstin(seller.getGstin());
+        seller1.setProducts(seller.getProducts());
+        return sellerRepository.save(seller1);
+    }
 
 
     public Customer getCustomer(String email){
@@ -124,6 +141,8 @@ public class UserService {
     public Seller getSeller(String email){
         return sellerRepository.findByEmail(email);
     }
+
+
 
 
 }

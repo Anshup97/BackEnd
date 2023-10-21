@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,19 +25,23 @@ public class Seller {
             generator = "seller_sequence",
             strategy = GenerationType.SEQUENCE
     )
+
     private Long sellerId;
-    private String shopName;
     private String name;
     private String email;
     private String contactPhoneNo;
-    private String alternatePhoneNo;
+    private String aadharNo;
+
+    private String shopName;
+    private String shopImages;
     private String upiPhoneNumber;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
     private Address address;
-    private String regNo;
-    private String aadharNo;
     private String qrCodeLink;
     private String gstin;
-
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
+    private List<Product> products;
+    private Long profilePhotoId;
 }

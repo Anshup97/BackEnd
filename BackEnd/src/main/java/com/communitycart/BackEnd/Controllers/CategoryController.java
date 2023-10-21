@@ -17,12 +17,14 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
     @PostMapping("/addCategory")
+    @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<Category> addCategory(@RequestBody CategoryDTO categoryDTO){
         return new ResponseEntity<>(categoryService.addCategory(categoryDTO),
                 HttpStatus.CREATED);
     }
 
     @DeleteMapping("/deleteCategory/{categoryId}")
+    @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
         Category category = categoryService.deleteCategory(categoryId);
         if(category == null){
@@ -32,6 +34,7 @@ public class CategoryController {
     }
 
     @PutMapping("/updateCategory")
+    @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<String> updateCategory(CategoryDTO categoryDTO){
         Category category = categoryService.updateCategory(categoryDTO);
         if(category == null){
@@ -41,10 +44,12 @@ public class CategoryController {
     }
 
     @GetMapping("/getAllCategories")
+    @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<List<Category>> getCategories(){
         return new ResponseEntity<>(categoryService.getCategories(), HttpStatus.OK);
     }
     @GetMapping("/getCategoryById/{categoryId}")
+    @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId){
         Category category = categoryService.getCategoryById(categoryId);
         if(category != null){
