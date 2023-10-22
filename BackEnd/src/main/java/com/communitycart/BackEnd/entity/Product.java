@@ -6,32 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "Products")
+@Table(name = "product")
 public class Product {
-    @Id
-    @SequenceGenerator(
-            name = "product_sequence",
-            sequenceName = "product_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "product_sequence"
-    )
-    private Long productId;
-    private String productName;
-    private Double productPrice;
-    private String productImage;
-    private Long productQuantity;
-    private String productDescription;
-    private String productSlug;
-    private boolean productFeatured;
-    private Long categoryId;
-
-
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        private Long productId;
+        private String productName;
+        private String productDescription;
+        private String productImage;
+        private String productSlug;
+        private Double productPrice;
+        private Integer productQuantity;
+        private boolean productFeatured;
+        private String productCategory;
+        private String shopId;
 }
