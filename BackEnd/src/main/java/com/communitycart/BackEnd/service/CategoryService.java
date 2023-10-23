@@ -18,10 +18,8 @@ public class CategoryService {
         category1 = new Category();
         category1.setCategoryName(category.getCategoryName());
         category1.setCategoryDescription(category.getCategoryDescription());
-        category1.setCategoryImage(category.getCategoryImage());
+
         category1.setCategorySlug(category.getCategorySlug());
-        category1.setCreatedAt(category.getCreatedAt());
-        category1.setUpdatedAt(category.getUpdatedAt());
         return categoryRepository.save(category1);
 
     }

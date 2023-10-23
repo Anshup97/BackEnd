@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -96,20 +97,19 @@ public class UserService {
         return customerRepository.deleteByEmailId(customer.getEmailId());
     }
 
-    public Seller addSeller(SellerDTO seller) throws IOException {
+    public SellerDTO addSeller(SellerDTO seller) throws IOException {
         String encodedPassword = passwordEncoder.encode(seller.getPassword());
         Seller sellerEntity = new Seller();
         sellerEntity.setName(seller.getName());
         sellerEntity.setEmail(seller.getEmail());
         sellerEntity.setContactPhoneNo(seller.getContactPhoneNo());
         sellerEntity.setAadharNo(seller.getAadharNo());
-        MultipartFile profilePhoto = seller.getProfilePhoto();
-        if(profilePhoto != null){
-            ImageData imageData = imageStorageService.uploadImage(profilePhoto);
-            sellerEntity.setProfilePhotoId(imageData.getId());
-        }
+        sellerEntity.setShopName(seller.getShopName());
+        ModelMapper modelMapper = new ModelMapper();
+        sellerEntity.setAddress(modelMapper.map(seller.getAddress(), Address.class));
+        sellerEntity.setGstin(seller.getGstin());
         createUser(new User(seller.getEmail(), encodedPassword, "SELLER"));
-        return sellerRepository.save(sellerEntity);
+        return new ModelMapper().map(sellerRepository.save(sellerEntity), SellerDTO.class);
     }
 
     public Seller deleteSeller(SellerDTO seller){
@@ -123,10 +123,7 @@ public class UserService {
         seller1.setContactPhoneNo(seller.getContactPhoneNo());
         seller1.setAadharNo(seller.getAadharNo());
         seller1.setShopName(seller.getShopName());
-        seller1.setShopImages(seller.getShopImages());
-        seller1.setUpiPhoneNumber(seller.getUpiPhoneNumber());
         seller1.setAddress(seller.getAddress());
-        seller1.setQrCodeLink(seller.getQrCodeLink());
         seller1.setGstin(seller.getGstin());
         seller1.setProducts(seller.getProducts());
         return sellerRepository.save(seller1);
@@ -138,11 +135,16 @@ public class UserService {
 
     }
 
-    public Seller getSeller(String email){
-        return sellerRepository.findByEmail(email);
+    public SellerDTO getSeller(String email){
+
+         return new ModelMapper().map(sellerRepository.findByEmail(email), SellerDTO.class);
     }
 
 
-
-
+    public SellerDTO uploadPhoto(String email, MultipartFile profilePhoto) throws IOException {
+        Seller seller = sellerRepository.findByEmail(email);
+        ImageData imageData = imageStorageService.uploadImage(profilePhoto);
+        seller.setProfilePhotoId(imageData.getId());
+        return new ModelMapper().map(sellerRepository.save(seller), SellerDTO.class);
+    }
 }

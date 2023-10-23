@@ -29,8 +29,11 @@ public class Address {
     private String city;
     private String district;
     private String state;
-    private Integer pinCode;
+    private String pinCode;
     private Double latitude;
     private Double longitude;
+
+    @OneToOne(mappedBy = "address")
+    private Seller seller;
 
 }

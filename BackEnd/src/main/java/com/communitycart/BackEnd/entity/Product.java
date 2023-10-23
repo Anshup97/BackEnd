@@ -20,18 +20,20 @@ public class Product {
             allocationSize = 1
     )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
+            strategy = GenerationType.AUTO,
             generator = "product_sequence"
     )
     private Long productId;
     private String productName;
     private Double productPrice;
-    private String productImage;
+    private String productImageUrl;
     private Long productQuantity;
     private String productDescription;
     private String productSlug;
     private boolean productFeatured;
     private Long categoryId;
+    private Long sellerId;
+
 
 
 }

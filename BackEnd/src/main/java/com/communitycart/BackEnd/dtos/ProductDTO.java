@@ -5,21 +5,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class ProductDTO {
 
+    private Long productId;
     private String productName;
     private Double productPrice;
-    private String productImage;
-    private String productQuantity;
+    private Long productQuantity;
     private String productDescription;
     private String productSlug;
     private boolean productFeatured;
     private Long categoryId;
     private Long sellerId;
+    private String productImageUrl;
 
 
 }

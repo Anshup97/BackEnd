@@ -11,10 +11,11 @@ import lombok.ToString;
 @ToString
 public class CategoryDTO {
 
+    private Long categoryId;
     private String categoryName;
     private String categoryDescription;
-    private String categoryImage;
+    private Long categoryPhotoId;
     private String categorySlug;
-    private String createdAt;
-    private String updatedAt;
+    private String catIconUrl;
+
 }

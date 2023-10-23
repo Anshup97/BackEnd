@@ -1,5 +1,6 @@
 package com.communitycart.BackEnd.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -33,15 +35,22 @@ public class Seller {
     private String aadharNo;
 
     private String shopName;
-    private String shopImages;
-    private String upiPhoneNumber;
+//    private String shopImages;
+//    private String upiPhoneNumber;
+//    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
+    @JoinColumn(name = "addressId", referencedColumnName = "addressId")
     private Address address;
-    private String qrCodeLink;
+//    private String qrCodeLink;
     private String gstin;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
+    private Set<Category> categories;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
     private List<Product> products;
     private Long profilePhotoId;
+//    @OneToMany(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "categoryId", referencedColumnName = "categoryId")
+//    private Set<Category> categories;
 }
