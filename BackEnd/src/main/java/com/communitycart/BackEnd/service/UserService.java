@@ -31,6 +31,8 @@ public class UserService {
     private SellerRepository sellerRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private FIleStorage fIleStorage;
 
     @Autowired
     private ImageStorageService imageStorageService;
@@ -60,41 +62,33 @@ public class UserService {
         return address;
     }
 
-    public Customer addCustomer(CustomerDTO customer){
-        createUser(new User(customer.getEmailId(), passwordEncoder.encode(customer.getPassword()), "CUSTOMER"));
+    public CustomerDTO addCustomer(CustomerDTO customer){
+        String encodedPassword = passwordEncoder.encode(customer.getPassword());
         Customer customerEntity = new Customer();
         customerEntity.setName(customer.getName());
-        customerEntity.setEmailId(customer.getEmailId());
-        customerEntity.setPhoneNo(customer.getPhoneNo());
-        customerEntity.setAlternatePhoneNo(customer.getAlternatePhoneNo());
-        List<Address> addressEntityList = new ArrayList<>();
-        for(AddressDTO add: customer.getAddress()){
-            Address ae = createAddress(add);
-            addressEntityList.add(ae);
-        }
-        customerEntity.setAddresses(addressEntityList);
-        return customerRepository.save(customerEntity);
+        customerEntity.setEmail(customer.getEmail());
+        customerEntity.setContactPhoneNo(customer.getContactPhoneNo());
+        customerEntity.setAddress(new ModelMapper().map(customer.getAddress(), Address.class));
+        createUser(new User(customer.getEmail(), encodedPassword, "BUYER"));
+        return new ModelMapper().map(customerRepository.save(customerEntity), CustomerDTO.class);
     }
 
-    public Customer updateCustomer(CustomerDTO customer){
-        Customer customerEntity = new Customer();
-        customerEntity.setName(customer.getName());
-        customerEntity.setEmailId(customer.getEmailId());
-        customerEntity.setPhoneNo(customer.getPhoneNo());
-        customerEntity.setAlternatePhoneNo(customer.getAlternatePhoneNo());
-        List<Address> addressEntityList = new ArrayList<>();
-        for(AddressDTO add: customer.getAddress()){
-            Address ae = createAddress(add);
-            addressEntityList.add(ae);
+    public CustomerDTO updateCustomer(CustomerDTO customer){
+        Customer customerEntity = customerRepository.findByEmail(customer.getEmail());
+        if(customerEntity != null){
+            customerEntity.setName(customer.getName());
+            customerEntity.setEmail(customer.getEmail());
+            customerEntity.setContactPhoneNo(customer.getContactPhoneNo());
+            customerEntity.setAddress(new ModelMapper().map(customer.getAddress(), Address.class));
+            return new ModelMapper().map(customerRepository.save(customerEntity), CustomerDTO.class);
         }
-        customerEntity.setAddresses(addressEntityList);
-        return customerRepository.save(customerEntity);
+        return null;
     }
 
 
     public Customer deleteCustomer(CustomerDTO customer){
-        deleteUser(customer.getEmailId());
-        return customerRepository.deleteByEmailId(customer.getEmailId());
+        deleteUser(customer.getEmail());
+        return customerRepository.deleteByEmail(customer.getEmail());
     }
 
     public SellerDTO addSeller(SellerDTO seller) throws IOException {
@@ -130,21 +124,40 @@ public class UserService {
     }
 
 
-    public Customer getCustomer(String email){
-        return customerRepository.findByEmailId(email);
-
+    public CustomerDTO getCustomer(String email){
+        Customer customer = customerRepository.findByEmail(email);
+        if(customer != null){
+            return new ModelMapper().map(customer, CustomerDTO.class);
+        }
+        return null;
     }
 
-    public SellerDTO getSeller(String email){
+    public SellerDTO getSeller(Long id){
 
-         return new ModelMapper().map(sellerRepository.findByEmail(email), SellerDTO.class);
+         return new ModelMapper().map(sellerRepository.findById(id), SellerDTO.class);
     }
 
 
-    public SellerDTO uploadPhoto(String email, MultipartFile profilePhoto) throws IOException {
+    public SellerDTO uploadPhoto(String email, MultipartFile profilePhoto) throws Exception {
         Seller seller = sellerRepository.findByEmail(email);
-        ImageData imageData = imageStorageService.uploadImage(profilePhoto);
-        seller.setProfilePhotoId(imageData.getId());
-        return new ModelMapper().map(sellerRepository.save(seller), SellerDTO.class);
+        if(seller != null){
+            String url = fIleStorage.saveSellerPhoto(profilePhoto, seller.getSellerId());
+            url = "http://172.17.84.65:8080/images/shop/" + url;
+            seller.setShopPhotoUrl(url);
+            return new ModelMapper().map(sellerRepository.save(seller), SellerDTO.class);
+        }
+        return null;
+
+    }
+
+    public CustomerDTO uploadCustomerPhoto(String email, MultipartFile profilePhoto) throws Exception {
+        Customer customer = customerRepository.findByEmail(email);
+        if(customer != null){
+            String url = fIleStorage.saveCustomerPhoto(profilePhoto, customer.getCustomerId());
+            url = "http://172.17.84.65:8080/images/customers/" + url;
+            customer.setCustomerImageUrl(url);
+            return new ModelMapper().map(customerRepository.save(customer), CustomerDTO.class);
+        }
+        return null;
     }
 }

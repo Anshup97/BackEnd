@@ -26,8 +26,7 @@ public class Category {
     private Long categoryId;
     private String categoryName;
     private String categoryDescription;
-    private String categoryImage;
     private String categorySlug;
     private String catIconUrl;
-    private Long categoryPhotoId;
+
 }

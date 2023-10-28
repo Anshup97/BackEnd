@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -31,17 +33,8 @@ public class SellerController {
     @Autowired
     private SellerService sellerService;
 
-    //Add categories
-    //Add products
-    //Manage Orders
-    //Update Seller Details
-
     @Autowired
     private FIleStorage fIleStorage;
-//    @PostMapping("/saveShopImages")
-//    public ResponseEntity<String> saveShopImages(@RequestPart MultipartFile file) throws Exception {
-//        return ResponseEntity.ok(fIleStorage.saveShopImages(file));
-//    }
 
     @GetMapping("/getAllSellers")
     public ResponseEntity<List<SellerDTO>> getAllSellers(){
@@ -50,20 +43,19 @@ public class SellerController {
 
     @PostMapping("/addProduct")
     public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO){
-        return ResponseEntity.ok(sellerService.addProduct(productDTO));
+        return new ResponseEntity<>(sellerService.addProduct(productDTO), HttpStatus.CREATED);
     }
 
     @PostMapping(value = "/uploadImage/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadProductImage(@PathVariable("productId") Long productId,
                                                      @RequestPart("productImage") MultipartFile productImage) throws Exception {
-        return ResponseEntity.ok(sellerService.uploadProductImage(productId, productImage));
+        String isUploaded = sellerService.uploadProductImage(productId, productImage);
+        if(isUploaded.equals("-1")){
+            return new ResponseEntity<>("Product image cannot be uploaded as Product Id not found.",
+                    HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(isUploaded);
     }
-
-//    @PostMapping("/deleteProduct")
-//    public ResponseEntity<Seller> deleteProduct(@RequestBody Long productId){
-//        Seller seller = sellerService.deleteProduct(productId);
-//        return ResponseEntity.ok(seller);
-//    }
 
     @PostMapping("/updateProduct")
     public ResponseEntity<ProductDTO> updateProduct(@RequestBody ProductDTO productDTO){
@@ -72,21 +64,11 @@ public class SellerController {
 
     @PostMapping("/addCategory/{email}")
     public ResponseEntity<CategoryDTO> addCategory(@PathVariable("email") String email, @RequestBody CategoryDTO category){
-        CategoryDTO categoryDTO1 = sellerService.addCategory(email, category);
-        if(categoryDTO1 != null){
-            return ResponseEntity.ok(categoryDTO1);
-        }
-        return new ResponseEntity<>(categoryDTO1, HttpStatus.NOT_FOUND);
-    }
-
-    @PostMapping(value = "/uploadPhoto/category/{categoryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CategoryDTO> uploadCategoryImage(@PathVariable("categoryId") Long categoryId,
-                                                           @RequestPart("photo") MultipartFile photo) throws IOException {
-        return ResponseEntity.ok(sellerService.uploadCategoryImage(categoryId, photo));
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @GetMapping("/getAllCategories/{email}")
-    public ResponseEntity<Set<Category>> getSellerCategories(@PathVariable("email") String email){
+    public ResponseEntity<List<Category>> getSellerCategories(@PathVariable("email") String email){
         return ResponseEntity.ok(sellerService.getCategoriesBySeller(email));
     }
 
@@ -97,9 +79,16 @@ public class SellerController {
                 .body(sellerService.getCategoryPhoto(categoryId));
     }
 
-    @GetMapping("/getSellerProducts/{email}")
-    public ResponseEntity<List<ProductDTO>> getSellerProducts(@PathVariable("email") String email){
-        return ResponseEntity.ok(sellerService.getProductsBySeller(email));
+    @GetMapping("/getProducts/{email}/{categoryId}")
+    public ResponseEntity<List<ProductDTO>> getSellerProducts(@PathVariable("email") String email,
+                                                              @PathVariable("categoryId") Long categoryId){
+        List<ProductDTO> productDTOS = sellerService.getProductsBySeller(email, categoryId);
+        if(productDTOS == null){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(productDTOS, HttpStatus.OK);
     }
+
+
 
 }

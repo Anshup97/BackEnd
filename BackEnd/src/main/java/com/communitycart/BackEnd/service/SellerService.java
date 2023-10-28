@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SellerService {
@@ -49,74 +50,23 @@ public class SellerService {
         return new ModelMapper();
     }
 
-    public CategoryDTO addCategory(String email, CategoryDTO categoryDTO){
-        Seller seller = sellerRepository.findByEmail(email);
-        Category cat1 = null;
-        if(seller != null){
-            Set<Category> categories = seller.getCategories();
-            if(categories == null){
-                categories = new HashSet<>();
-            }
-            categories.add(getMapper().map(categoryDTO, Category.class));
-            seller.setCategories(categories);
-            seller = sellerRepository.save(seller);
-            for(Category cat: seller.getCategories()){
-                if(cat.getCategoryName().equals(categoryDTO.getCategoryName())){
-                    cat1 = cat;
-                    break;
-                }
-            }
+    public List<Category> getCategoriesBySeller(String email){
+        List<Product> productList = sellerRepository.findByEmail(email).getProducts();
+        Set<Long> st = new HashSet<>();
+        List<Category> categoryList = new ArrayList<>();
+        for(Product pr: productList){
+            st.add(pr.getCategoryId());
         }
-        return new ModelMapper().map(cat1, CategoryDTO.class);
-    }
-
-    public String deleteCategory(Long categoryId){
-        return "Category deleted with category ID - " +
-                categoryRepository.deleteByCategoryId(categoryId).getCategoryId().toString();
-    }
-
-    public Set<Category> getCategoriesBySeller(String email){
-        System.out.println("Email - " + email);
-        return sellerRepository.findByEmail(email).getCategories();
-    }
-
-
-
-//    public Seller addProduct(ProductDTO productDTO, Long sellerId){
-//        Seller seller = sellerRepository.findById(sellerId).orElse(null);
-//        if(seller != null){
-//            List<Product> productList = seller.getProducts();
-//            productList.add(getMapper().map(productDTO, Product.class));
-//            sellerRepository.save(seller);
-//        }
-//        return seller;
-//    }
-
-//    public Seller deleteProduct(Long productId) {
-//        sellerRepository.deleteById(productId);
-//    }
-
-    public byte[] getProfilePhoto(String email){
-        Seller seller = sellerRepository.findByEmail(email);
-        if(seller.getProfilePhotoId() != null){
-            Optional<ImageData> profilePhoto = imageStorageRepository.findById(seller.getProfilePhotoId());
-            if(profilePhoto.isPresent()){
-                return imageStorageService.downloadImage(seller.getProfilePhotoId());
-
-            }
+        for(Long i: st){
+            categoryList.add(categoryRepository.findByCategoryId(i));
         }
-        return null;
+        return categoryList;
     }
 
-
-    public CategoryDTO uploadCategoryImage(Long categoryId, MultipartFile photo) throws IOException {
-        ImageData imageData = imageStorageService.uploadImage(photo);
-        Category category = categoryRepository.findByCategoryId(categoryId);
-        category.setCategoryPhotoId(imageData.getId());
-        return new ModelMapper().map(categoryRepository.save(category), CategoryDTO.class);
-
+    public Seller deleteProduct(Long productId) {
+        sellerRepository.deleteById(productId);
+        return new Seller();
     }
-
 
     public byte[] getCategoryPhoto(Long categoryId) {
 
@@ -132,15 +82,7 @@ public class SellerService {
 
     public ProductDTO addProduct(ProductDTO product){
         Seller seller = sellerRepository.findById(product.getSellerId()).get();
-        Product productEntity = new Product();
-        productEntity.setProductName(product.getProductName());
-        productEntity.setProductPrice(product.getProductPrice());
-        productEntity.setProductQuantity(product.getProductQuantity());
-        productEntity.setProductDescription(product.getProductDescription());
-        productEntity.setProductSlug(product.getProductSlug());
-        productEntity.setProductFeatured(product.isProductFeatured());
-        productEntity.setCategoryId(product.getCategoryId());
-        productEntity.setSellerId(product.getSellerId());
+        Product productEntity = new ModelMapper().map(product, Product.class);
         List<Product> productList = seller.getProducts();
         if(productList == null){
             productList = new ArrayList<>();
@@ -154,19 +96,33 @@ public class SellerService {
 
     public String uploadProductImage(Long productId, MultipartFile productImage) throws Exception {
         String photoId = fIleStorage.saveImages("images/product", productImage, productId);
-        Product product = productRepository.findById(productId).get();
-        product.setProductImageUrl(photoId);
-        productRepository.save(product);
+        Optional<Product> product = productRepository.findById(productId);
+        if(!product.isPresent()){
+            return "-1";
+        }
+        product.get().setProductImageUrl("http://172.17.84.65:8080/images/product/" + photoId);
+        productRepository.save(product.get());
         return photoId;
     }
 
-    public List<ProductDTO> getProductsBySeller(String email) {
+    public List<ProductDTO> getProductsBySeller(String email, Long categoryId) {
         List<Product> productList = sellerRepository.findByEmail(email).getProducts();
         List<ProductDTO> res = new ArrayList<>();
         for(Product p: productList){
             res.add(new ModelMapper().map(p, ProductDTO.class));
         }
-        return res;
+        if(categoryId == -1){
+            return res;
+        } else {
+            Category category = categoryRepository.findByCategoryId(categoryId);
+            if(category == null){
+                return null;
+            }
+            res = res.stream()
+                    .filter(x -> x.getCategoryId().equals(categoryId))
+                    .collect(Collectors.toList());
+            return res;
+        }
     }
 
     public ProductDTO updateProduct(ProductDTO productDTO){

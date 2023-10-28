@@ -22,8 +22,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.stream.Location;
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.util.List;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -61,25 +64,7 @@ public class UserController {
         return new ResponseEntity<>(userService.getUser(emailId).getRole(), HttpStatus.FOUND);
     }
 
-    @PostMapping ("/addCustomer")
-    public ResponseEntity<String> addCustomer(@RequestBody CustomerDTO customer){
-        User user = userService.getUser(customer.getEmailId());
-        if(user == null){
-            Long customerId = userService.addCustomer(customer).getCustomerId();
-            return new ResponseEntity<>("Customer created with ID - " + customerId.toString(),
-                    HttpStatus.CREATED) {
-            };
-        }
-        return new ResponseEntity<>("Customer already registered.", HttpStatus.OK);
-    }
-    @GetMapping("/getCustomer/{email}")
-    public ResponseEntity<String> getCustomer(@PathVariable(name = "email") String email){
-        Customer customer = userService.getCustomer(email);
-        if(customer == null){
-            new ResponseEntity<>("Customer not present.", HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(userService.getCustomer(email).toString(), HttpStatus.FOUND);
-    }
+
 
     @CrossOrigin
     @PostMapping(value = "/addSeller")
@@ -94,25 +79,23 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping(value = "/uploadPhoto/profile/{email}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<SellerDTO> uploadPhoto(@PathVariable("email") String email,
+    @PostMapping(value = "/uploadPhoto/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> uploadPhoto(@RequestParam("email") String email,
                                               @RequestPart("profilePhoto")MultipartFile profilePhoto)
-            throws IOException {
+            throws Exception {
         User user = userService.getUser(email);
         if(user != null){
-            SellerDTO seller = userService.uploadPhoto(email, profilePhoto);
-            return new ResponseEntity<>(seller, HttpStatus.OK);
+            if(user.getRole().equals("SELLER")){
+                SellerDTO seller = userService.uploadPhoto(email, profilePhoto);
+                return new ResponseEntity<>(seller, HttpStatus.OK);
+            } else if(user.getRole().equals("BUYER")){
+                CustomerDTO customer = userService.uploadCustomerPhoto(email, profilePhoto);
+                return new ResponseEntity<>(customer, HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-
-
-//    @PostMapping(value = "/sendPhoto", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-//    public String getPhoto(@RequestPart("name") String email, String name, String contactPhoneNo,
-//                           String aadharNo, String password, @RequestPart("photo") MultipartFile photo){
-//        return name + photo.getOriginalFilename();
-//    }
 
     @PostMapping("/deleteSeller")
     public ResponseEntity<String> deleteSeller(@RequestBody SellerDTO seller){
@@ -135,17 +118,16 @@ public class UserController {
         return new ResponseEntity<>("Seller Not registered.", HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/getSeller/{email}")
-    public ResponseEntity<SellerDTO> getSeller(@PathVariable(name = "email") String email){
-        return new ResponseEntity<>(userService.getSeller(email), HttpStatus.OK);
+    @GetMapping("/getSeller")
+    public ResponseEntity<List<SellerDTO>> getSeller(@RequestParam(name = "sellerId", required = false) Long sellerId){
+        if(sellerId == null){
+            return new ResponseEntity<>(sellerService.getAllSellers(), HttpStatus.OK);
+        }
+        SellerDTO sellerDTO = userService.getSeller(sellerId);
+        if(sellerDTO == null){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(List.of(sellerDTO), HttpStatus.OK);
     }
-
-    @GetMapping("/getProfilePhoto/{email}")
-    public ResponseEntity<?> getSellerProfilePhoto(@PathVariable(name = "email") String email){
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.valueOf("image/png"))
-                .body(sellerService.getProfilePhoto(email));
-    }
-
 
 }

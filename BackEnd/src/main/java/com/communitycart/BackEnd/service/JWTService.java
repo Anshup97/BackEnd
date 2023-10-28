@@ -1,5 +1,8 @@
 package com.communitycart.BackEnd.service;
 
+import com.communitycart.BackEnd.entity.User;
+import com.communitycart.BackEnd.repository.CustomerRepository;
+import com.communitycart.BackEnd.repository.SellerRepository;
 import com.communitycart.BackEnd.repository.UsersRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,9 +28,24 @@ public class JWTService {
 
     @Autowired
     private UsersRepository usersRepository;
+
+    @Autowired
+    private SellerRepository sellerRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
     public String generateToken(String emailId){
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", usersRepository.findByEmailId(emailId).getRole());
+        User user = usersRepository.findByEmailId(emailId);
+        if(user != null){
+            claims.put("role", user.getRole());
+            if(user.getRole().equals("SELLER")){
+                claims.put("sellerId", sellerRepository.findByEmail(user.getEmailId()).getSellerId());
+            } else {
+                claims.put("customerId", customerRepository.findByEmail(
+                        user.getEmailId()).getCustomerId());
+            }
+        }
         return createToken(claims, emailId);
     }
 

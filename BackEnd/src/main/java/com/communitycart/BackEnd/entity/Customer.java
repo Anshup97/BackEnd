@@ -27,10 +27,12 @@ public class Customer {
     )
     private Long customerId;
     private String name;
-    private String emailId;
-    private String phoneNo;
-    private String alternatePhoneNo;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "customer_id", referencedColumnName = "customerId")
-    private List<Address> addresses;
+    private String email;
+    private String contactPhoneNo;
+    private String customerImageUrl;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "addressId", referencedColumnName = "addressId")
+    private Address address;
+
 }

@@ -33,24 +33,16 @@ public class Seller {
     private String email;
     private String contactPhoneNo;
     private String aadharNo;
+    private String shopPhotoUrl;
 
     private String shopName;
-//    private String shopImages;
-//    private String upiPhoneNumber;
-//    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "addressId", referencedColumnName = "addressId")
     private Address address;
-//    private String qrCodeLink;
     private String gstin;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
-    private Set<Category> categories;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "sellerId", referencedColumnName = "sellerId")
     private List<Product> products;
-    private Long profilePhotoId;
-//    @OneToMany(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "categoryId", referencedColumnName = "categoryId")
-//    private Set<Category> categories;
+
+
 }

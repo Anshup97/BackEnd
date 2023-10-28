@@ -15,13 +15,14 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @ToString
 public class SellerDTO {
+
     private Long sellerId;
     private String email;
     private String name;
     private String contactPhoneNo;
     private String aadharNo;
     private String password;
-
+    private String shopPhotoUrl;
     private String shopName;
     private AddressDTO address;
     private String gstin;

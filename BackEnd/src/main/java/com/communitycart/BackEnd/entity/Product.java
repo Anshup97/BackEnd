@@ -31,6 +31,7 @@ public class Product {
     private String productDescription;
     private String productSlug;
     private boolean productFeatured;
+
     private Long categoryId;
     private Long sellerId;
 

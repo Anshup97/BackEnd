@@ -36,4 +36,6 @@ public class Address {
     @OneToOne(mappedBy = "address")
     private Seller seller;
 
+    @OneToOne(mappedBy = "address")
+    private Customer customer;
 }

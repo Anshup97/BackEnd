@@ -13,19 +13,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
-//    @PostMapping("/addCategory")
-//    @PreAuthorize("hasAuthority('SELLER')")
-//    public ResponseEntity<Category> addCategory(@RequestBody CategoryDTO categoryDTO){
-//        return new ResponseEntity<>(categoryService.addCategory(categoryDTO),
-//                HttpStatus.CREATED);
-//    }
+    @PostMapping("/addCategory")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<CategoryDTO> addCategory(@RequestBody CategoryDTO categoryDTO){
+        CategoryDTO category = categoryService.addCategory(categoryDTO);
+        if(category == null){
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(category, HttpStatus.CREATED);
+    }
 
-    @DeleteMapping("/deleteCategory/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
-        Category category = categoryService.deleteCategory(categoryId);
+    @DeleteMapping("/deleteCategory/{categoryName}")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<String> deleteCategory(@PathVariable String categoryName){
+        CategoryDTO category = categoryService.deleteCategory(categoryName);
         if(category == null){
             return new ResponseEntity<>("Category to be deleted not found.", HttpStatus.NOT_FOUND);
         }
@@ -33,20 +38,21 @@ public class CategoryController {
     }
 
     @PutMapping("/updateCategory")
-    public ResponseEntity<String> updateCategory(CategoryDTO categoryDTO){
-        Category category = categoryService.updateCategory(categoryDTO);
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<String> updateCategory(@RequestBody CategoryDTO categoryDTO){
+        CategoryDTO category = categoryService.updateCategory(categoryDTO);
         if(category == null){
             return new ResponseEntity<>("Category to be updated Not Found!", HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>("Category updated.", HttpStatus.OK);
+        return new ResponseEntity<>("Category updated ID - " + category.getCategoryId(), HttpStatus.OK);
     }
 
     @GetMapping("/getAllCategories")
     public ResponseEntity<List<Category>> getCategories(){
         return new ResponseEntity<>(categoryService.getCategories(), HttpStatus.OK);
     }
-    @GetMapping("/getCategoryById/{categoryId}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId){
+    @GetMapping("/getCategoryById")
+    public ResponseEntity<Category> getCategoryById(@RequestParam("categoryId") Long categoryId){
         Category category = categoryService.getCategoryById(categoryId);
         if(category != null){
             return new ResponseEntity<>(category, HttpStatus.FOUND);

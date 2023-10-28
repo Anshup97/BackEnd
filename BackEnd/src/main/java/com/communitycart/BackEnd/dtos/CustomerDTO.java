@@ -13,11 +13,12 @@ import java.util.List;
 @ToString
 public class CustomerDTO {
 
+    private Long customerId;
     private String name;
-    private String emailId;
-    private String phoneNo;
-    private String alternatePhoneNo;
-    private List<AddressDTO> address;
+    private String email;
+    private String contactPhoneNo;
+    private AddressDTO address;
     private String password;
+    private String customerImageUrl;
 
 }

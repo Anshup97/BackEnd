@@ -20,9 +20,8 @@ public class ProductDTO {
     private String productDescription;
     private String productSlug;
     private boolean productFeatured;
+    private String productImageUrl;
     private Long categoryId;
     private Long sellerId;
-    private String productImageUrl;
-
 
 }
