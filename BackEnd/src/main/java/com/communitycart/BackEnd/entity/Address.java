@@ -32,6 +32,7 @@ public class Address {
     private String pinCode;
     private Double latitude;
     private Double longitude;
+    private Double elevation;
 
     @OneToOne(mappedBy = "address")
     private Seller seller;

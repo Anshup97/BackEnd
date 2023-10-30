@@ -7,6 +7,7 @@ import com.communitycart.BackEnd.entity.Category;
 import com.communitycart.BackEnd.entity.Product;
 import com.communitycart.BackEnd.entity.Seller;
 import com.communitycart.BackEnd.entity.User;
+import com.communitycart.BackEnd.service.CategoryService;
 import com.communitycart.BackEnd.service.FIleStorage;
 import com.communitycart.BackEnd.service.SellerService;
 import com.communitycart.BackEnd.service.UserService;
@@ -34,6 +35,9 @@ public class SellerController {
     private SellerService sellerService;
 
     @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
     private FIleStorage fIleStorage;
 
     @GetMapping("/getAllSellers")
@@ -46,8 +50,8 @@ public class SellerController {
         return new ResponseEntity<>(sellerService.addProduct(productDTO), HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "/uploadImage/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadProductImage(@PathVariable("productId") Long productId,
+    @PostMapping(value = "/uploadImage/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadProductImage(@RequestParam("productId") Long productId,
                                                      @RequestPart("productImage") MultipartFile productImage) throws Exception {
         String isUploaded = sellerService.uploadProductImage(productId, productImage);
         if(isUploaded.equals("-1")){
@@ -67,9 +71,18 @@ public class SellerController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @GetMapping("/getAllCategories/{email}")
-    public ResponseEntity<List<Category>> getSellerCategories(@PathVariable("email") String email){
-        return ResponseEntity.ok(sellerService.getCategoriesBySeller(email));
+    @GetMapping("/getSellerCategories")
+    public ResponseEntity<?> getSellerCategories(@RequestParam(value = "sellerId", required = false) Long sellerId){
+        if(sellerId == null){
+            return new ResponseEntity<>(categoryService.getCategories().stream()
+                    .map(c -> new ModelMapper().map(c, CategoryDTO.class))
+                    .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
+        }
+        List<CategoryDTO> categoryDTOS = sellerService.getCategoriesBySeller(sellerId);
+        if(categoryDTOS == null || categoryDTOS.isEmpty()){
+            return new ResponseEntity<>("No categories available for the seller.", HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(sellerService.getCategoriesBySeller(sellerId));
     }
 
     @GetMapping("/getCategoryPhoto/{categoryId}")
@@ -89,6 +102,22 @@ public class SellerController {
         return new ResponseEntity<>(productDTOS, HttpStatus.OK);
     }
 
-
+    @GetMapping("/getNearbySellers")
+    public ResponseEntity<?> getNearbySellers(@RequestParam Double sourceLat, @RequestParam Double sourceLng,
+                                              @RequestParam Double elevation,
+                                              @RequestParam(required = false) Long categoryId){
+        List<SellerDTO> sellerDTOS = sellerService.getNearbySellers(sourceLat, sourceLng, elevation);
+        if(sellerDTOS.isEmpty()){
+            return new ResponseEntity<>("No Nearby sellers for your location.", HttpStatus.NOT_FOUND);
+        }
+        if(categoryId == null){
+            return new ResponseEntity<>(sellerDTOS, HttpStatus.OK);
+        }
+        sellerDTOS = sellerService.getNearbySellersByCategory(categoryId);
+        if(sellerDTOS.isEmpty()){
+            return new ResponseEntity<>("No nearby sellers for the category.", HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(sellerDTOS);
+    }
 
 }

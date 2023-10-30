@@ -16,5 +16,7 @@ public class OrderDTO {
 
     private Long orderId;
     private Long customerId;
-    private List<Product> items;
+    private List<ProductDTO> items;
+
+
 }

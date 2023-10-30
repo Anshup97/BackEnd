@@ -19,5 +19,6 @@ public class AddressDTO {
     private String pinCode;
     private Double latitude;
     private Double longitude;
+    private Double elevation;
 
 }

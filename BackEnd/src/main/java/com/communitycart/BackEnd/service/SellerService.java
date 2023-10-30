@@ -11,6 +11,7 @@ import com.communitycart.BackEnd.repository.CategoryRepository;
 import com.communitycart.BackEnd.repository.ImageStorageRepository;
 import com.communitycart.BackEnd.repository.ProductRepository;
 import com.communitycart.BackEnd.repository.SellerRepository;
+import com.communitycart.BackEnd.utils.CalculateDistance;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.matcher.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,12 @@ public class SellerService {
         return new ModelMapper();
     }
 
-    public List<Category> getCategoriesBySeller(String email){
-        List<Product> productList = sellerRepository.findByEmail(email).getProducts();
+    public List<CategoryDTO> getCategoriesBySeller(Long sellerId){
+        Optional<Seller> seller = sellerRepository.findById(sellerId);
+        if(seller.isEmpty()){
+            return null;
+        }
+        List<Product> productList = seller.get().getProducts();
         Set<Long> st = new HashSet<>();
         List<Category> categoryList = new ArrayList<>();
         for(Product pr: productList){
@@ -60,7 +65,9 @@ public class SellerService {
         for(Long i: st){
             categoryList.add(categoryRepository.findByCategoryId(i));
         }
-        return categoryList;
+        return categoryList.stream()
+                .map(c -> new ModelMapper().map(c, CategoryDTO.class))
+                .collect(Collectors.toList());
     }
 
     public Seller deleteProduct(Long productId) {
@@ -145,5 +152,32 @@ public class SellerService {
         return sellerDTOS;
     }
 
+    public List<SellerDTO> getNearbySellers(Double lat, Double longi, Double el){
+        List<Seller> sellers = sellerRepository.findAll();
+        sellers = sellers.stream()
+                .filter(s -> CalculateDistance.distance(lat, longi,s.getAddress().getLatitude(),
+                        s.getAddress().getLongitude(), el, s.getAddress().getElevation()) <= 10)
+                .collect(Collectors.toList());
+        return sellers.stream()
+                .map(s -> new ModelMapper().map(s, SellerDTO.class))
+                .toList();
+    }
 
+
+    public List<SellerDTO> getNearbySellersByCategory(Long categoryId) {
+        List<Seller> sellers = sellerRepository.findAll();
+        Set<Seller> res = new HashSet<>();
+        for(Seller seller: sellers){
+            List<Product> products = seller.getProducts();
+            for(Product p: products){
+                if(p.getCategoryId().equals(categoryId)){
+                    res.add(seller);
+                }
+            }
+        }
+        List<Seller> sellerList = res.stream().toList();
+        return sellerList.stream()
+                .map(s -> new ModelMapper().map(s, SellerDTO.class))
+                .collect(Collectors.toList());
+    }
 }
