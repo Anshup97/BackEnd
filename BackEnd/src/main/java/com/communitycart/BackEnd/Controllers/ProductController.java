@@ -60,7 +60,7 @@ public class ProductController {
     public ResponseEntity<?> getProductByProductId(@RequestParam Long productId){
         ProductDTO productDTO = productService.getProduct(productId);
         if(productDTO == null){
-            return new ResponseEntity<>("Product not found.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Product not found with the given Id.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(productDTO, HttpStatus.FOUND);
     }
