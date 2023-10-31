@@ -61,4 +61,9 @@ public class ProductService {
         }
         return null;
     }
+
+    public ProductDTO getProduct(Long productId) {
+        Optional<Product> product = productRepository.findById(productId);
+        return product.map(value -> new ModelMapper().map(value, ProductDTO.class)).orElse(null);
+    }
 }

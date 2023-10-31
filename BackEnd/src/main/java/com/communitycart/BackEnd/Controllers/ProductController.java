@@ -56,5 +56,14 @@ public class ProductController {
         return new ResponseEntity<>(productDTOList, HttpStatus.OK);
     }
 
+    @GetMapping("/getProduct")
+    public ResponseEntity<?> getProductByProductId(@RequestParam Long productId){
+        ProductDTO productDTO = productService.getProduct(productId);
+        if(productDTO == null){
+            return new ResponseEntity<>("Product not found.", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(productDTO, HttpStatus.FOUND);
+    }
+
 
 }
