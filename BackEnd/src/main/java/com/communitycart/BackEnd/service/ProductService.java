@@ -66,4 +66,23 @@ public class ProductService {
         Optional<Product> product = productRepository.findById(productId);
         return product.map(value -> new ModelMapper().map(value, ProductDTO.class)).orElse(null);
     }
+
+    public ProductDTO updateProduct(ProductDTO productDTO){
+        Optional<Product> product = productRepository.findById(productDTO.getProductId());
+        if(product.isEmpty()){
+            return null;
+        }
+        productRepository.save(new ModelMapper().map(productDTO, Product.class));
+        return productDTO;
+    }
+
+    public ProductDTO deleteProduct(Long productId) {
+        Product product = productRepository.findProductByProductId(productId);
+        if(product == null){
+            return null;
+        }
+        ProductDTO productDTO = new ModelMapper().map(product, ProductDTO.class);
+        productRepository.delete(product);
+        return productDTO;
+    }
 }

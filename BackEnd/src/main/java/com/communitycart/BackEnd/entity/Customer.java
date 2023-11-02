@@ -35,4 +35,7 @@ public class Customer {
     @JoinColumn(name = "addressId", referencedColumnName = "addressId")
     private Address address;
 
+    @OneToOne(mappedBy = "customer")
+    private Cart cart;
+
 }

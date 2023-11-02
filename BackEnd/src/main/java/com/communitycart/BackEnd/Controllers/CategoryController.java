@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,24 +28,25 @@ public class CategoryController {
         return new ResponseEntity<>(category, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/deleteCategory/{categoryName}")
+    @DeleteMapping("/deleteCategory")
     @PreAuthorize("hasAuthority('SELLER')")
-    public ResponseEntity<String> deleteCategory(@PathVariable String categoryName){
-        CategoryDTO category = categoryService.deleteCategory(categoryName);
+    @Transactional
+    public ResponseEntity<?> deleteCategory(@RequestParam Long categoryId){
+        CategoryDTO category = categoryService.deleteCategory(categoryId);
         if(category == null){
             return new ResponseEntity<>("Category to be deleted not found.", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("Category deleted - " + category.getCategoryId(), HttpStatus.OK);
+        return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
     @PutMapping("/updateCategory")
     @PreAuthorize("hasAuthority('SELLER')")
-    public ResponseEntity<String> updateCategory(@RequestBody CategoryDTO categoryDTO){
+    public ResponseEntity<?> updateCategory(@RequestBody CategoryDTO categoryDTO){
         CategoryDTO category = categoryService.updateCategory(categoryDTO);
         if(category == null){
             return new ResponseEntity<>("Category to be updated Not Found!", HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>("Category updated ID - " + category.getCategoryId(), HttpStatus.OK);
+        return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
     @GetMapping("/getAllCategories")

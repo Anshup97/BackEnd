@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.matcher.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import java.util.List;
@@ -33,18 +34,18 @@ public class CategoryService {
 
     }
 
-    public CategoryDTO deleteCategory(String name){
-        Category category = categoryRepository.findByCategoryName(name);
+    public CategoryDTO deleteCategory(Long categoryId){
+        Category category = categoryRepository.findByCategoryId(categoryId);
         if(category != null){
-            return mapper().map(categoryRepository.deleteByCategoryId(category.getCategoryId()),
+            categoryRepository.delete(category);
+            return mapper().map(category,
                     CategoryDTO.class);
-
         }
         return null;
     }
 
     public CategoryDTO updateCategory(CategoryDTO category){
-        Category category1 = categoryRepository.findByCategoryName(category.getCategoryName());
+        Category category1 = categoryRepository.findByCategoryId(category.getCategoryId());
         if(category1 == null){
             return null;
         }

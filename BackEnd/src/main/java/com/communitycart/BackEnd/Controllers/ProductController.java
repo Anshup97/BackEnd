@@ -33,17 +33,6 @@ public class ProductController {
         return ResponseEntity.ok(productDTOS);
     }
 
-
-
-    @DeleteMapping("/deleteProduct")
-    public ResponseEntity<String> deleteProduct(@RequestParam("productId") Long productId){
-        if(productId != null && productRepository.findById(productId).isPresent()){
-            productRepository.deleteById(productId);
-            return ResponseEntity.ok("Product deleted with ID - " + productId);
-        }
-        return new ResponseEntity<>("Product to be deleted not found.", HttpStatus.NOT_FOUND);
-    }
-
     @GetMapping("/getProducts")
     public ResponseEntity<List<ProductDTO>> getProductsBySellerIdAndCategoryId(@RequestParam(required = false)
                                                                                    Long sellerId,
@@ -63,6 +52,25 @@ public class ProductController {
             return new ResponseEntity<>("Product not found with the given Id.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(productDTO, HttpStatus.FOUND);
+    }
+
+    @PutMapping("/updateProduct")
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO){
+        ProductDTO res = productService.updateProduct(productDTO);
+        if(res == null){
+            return new ResponseEntity<>("Product to be updated not found.", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/deleteProduct")
+    public ResponseEntity<?> deleteProduct(@RequestParam Long productId){
+        ProductDTO res = productService.deleteProduct(productId);
+        if(res == null){
+            return new ResponseEntity<>("Product to be deleted not found.", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 
