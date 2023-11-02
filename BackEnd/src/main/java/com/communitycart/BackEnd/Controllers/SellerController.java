@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -51,12 +52,12 @@ public class SellerController {
     }
 
     @PostMapping(value = "/uploadImage/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadProductImage(@RequestParam("productId") Long productId,
+    public ResponseEntity<?> uploadProductImage(@RequestParam("productId") Long productId,
                                                      @RequestPart("productImage") MultipartFile productImage) throws Exception {
         String isUploaded = sellerService.uploadProductImage(productId, productImage);
         if(isUploaded.equals("-1")){
-            return new ResponseEntity<>("Product image cannot be uploaded as Product Id not found.",
-                    HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(),
+                    HttpStatus.OK);
         }
         return ResponseEntity.ok(isUploaded);
     }
@@ -76,11 +77,11 @@ public class SellerController {
         if(sellerId == null){
             return new ResponseEntity<>(categoryService.getCategories().stream()
                     .map(c -> new ModelMapper().map(c, CategoryDTO.class))
-                    .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
+                    .collect(Collectors.toList()), HttpStatus.OK);
         }
         List<CategoryDTO> categoryDTOS = sellerService.getCategoriesBySeller(sellerId);
         if(categoryDTOS == null || categoryDTOS.isEmpty()){
-            return new ResponseEntity<>("No categories available for the seller.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         return ResponseEntity.ok(sellerService.getCategoriesBySeller(sellerId));
     }
@@ -97,7 +98,7 @@ public class SellerController {
                                                               @PathVariable("categoryId") Long categoryId){
         List<ProductDTO> productDTOS = sellerService.getProductsBySeller(email, categoryId);
         if(productDTOS == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         return new ResponseEntity<>(productDTOS, HttpStatus.OK);
     }
@@ -108,14 +109,14 @@ public class SellerController {
                                               @RequestParam(required = false) Long categoryId){
         List<SellerDTO> sellerDTOS = sellerService.getNearbySellers(sourceLat, sourceLng, elevation);
         if(sellerDTOS.isEmpty()){
-            return new ResponseEntity<>("No Nearby sellers for your location.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         if(categoryId == null){
             return new ResponseEntity<>(sellerDTOS, HttpStatus.OK);
         }
         sellerDTOS = sellerService.getNearbySellersByCategory(categoryId);
         if(sellerDTOS.isEmpty()){
-            return new ResponseEntity<>("No nearby sellers for the category.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         return ResponseEntity.ok(sellerDTOS);
     }

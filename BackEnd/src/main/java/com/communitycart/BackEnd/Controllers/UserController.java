@@ -56,12 +56,12 @@ public class UserController {
                 HttpStatus.FORBIDDEN);
     }
     @GetMapping("/getUser/{emailId}")
-    public ResponseEntity<String> getRole(@PathVariable String emailId){
+    public ResponseEntity<?> getRole(@PathVariable String emailId){
         User user = userService.getUser(emailId);
         if(user == null){
-            return new ResponseEntity<>("User not present.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
-        return new ResponseEntity<>(userService.getUser(emailId).getRole(), HttpStatus.FOUND);
+        return new ResponseEntity<>(userService.getUser(emailId).getRole(), HttpStatus.OK);
     }
 
 
@@ -76,7 +76,7 @@ public class UserController {
             SellerDTO seller1 = userService.addSeller(seller);
             return new ResponseEntity<>(seller1, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @PostMapping(value = "/uploadPhoto/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -93,29 +93,29 @@ public class UserController {
                 return new ResponseEntity<>(customer, HttpStatus.OK);
             }
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 
     @PostMapping("/deleteSeller")
-    public ResponseEntity<String> deleteSeller(@RequestBody SellerDTO seller){
+    public ResponseEntity<?> deleteSeller(@RequestBody SellerDTO seller){
         User user = userService.getUser(seller.getEmail());
         if(user != null){
-            Long sellerId = userService.deleteSeller(seller).getSellerId();
-            return new ResponseEntity<>("Seller deleted with ID - " + sellerId.toString(), HttpStatus.FOUND);
+            Seller sellerId = userService.deleteSeller(seller);
+            return new ResponseEntity<>(sellerId, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Seller Not registered.", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 
     @PostMapping("/updateSeller")
-    public ResponseEntity<String> updateSeller(@RequestBody Seller seller){
+    public ResponseEntity<?> updateSeller(@RequestBody Seller seller){
         User user = userService.getUser(seller.getEmail());
         if(user != null){
-            Long sellerId = userService.updateSeller(seller).getSellerId();
-            return new ResponseEntity<>("Seller updated with ID - " + sellerId.toString(), HttpStatus.FOUND);
+            Seller sellerId = userService.updateSeller(seller);
+            return new ResponseEntity<>(sellerId, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Seller Not registered.", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @GetMapping("/getSeller")
@@ -125,7 +125,7 @@ public class UserController {
         }
         SellerDTO sellerDTO = userService.getSeller(sellerId);
         if(sellerDTO == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
         return new ResponseEntity<>(List.of(sellerDTO), HttpStatus.OK);
     }

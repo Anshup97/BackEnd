@@ -45,7 +45,8 @@ public class UserService {
     }
 
     public void deleteUser(String email){
-        usersRepository.deleteByEmailId(email);
+        User user = usersRepository.findByEmailId(email);
+        usersRepository.delete(user);
     }
 
 
@@ -69,6 +70,7 @@ public class UserService {
         customerEntity.setEmail(customer.getEmail());
         customerEntity.setContactPhoneNo(customer.getContactPhoneNo());
         customerEntity.setAddress(new ModelMapper().map(customer.getAddress(), Address.class));
+        customerEntity.setCart(new Cart());
         createUser(new User(customer.getEmail(), encodedPassword, "BUYER"));
         return new ModelMapper().map(customerRepository.save(customerEntity), CustomerDTO.class);
     }
@@ -86,9 +88,15 @@ public class UserService {
     }
 
 
-    public Customer deleteCustomer(CustomerDTO customer){
+    public CustomerDTO deleteCustomer(String email){
+        Customer customer = customerRepository.findByEmail(email);
+        if(customer == null){
+            return null;
+        }
         deleteUser(customer.getEmail());
-        return customerRepository.deleteByEmail(customer.getEmail());
+        CustomerDTO customerDTO = new ModelMapper().map(customer, CustomerDTO.class);
+        customerRepository.delete(customer);
+        return customerDTO;
     }
 
     public SellerDTO addSeller(SellerDTO seller) throws IOException {
@@ -127,7 +135,14 @@ public class UserService {
     public CustomerDTO getCustomer(String email){
         Customer customer = customerRepository.findByEmail(email);
         if(customer != null){
-            return new ModelMapper().map(customer, CustomerDTO.class);
+            CustomerDTO customerDTO = new CustomerDTO();
+            customerDTO.setCustomerId(customer.getCustomerId());
+            customerDTO.setName(customer.getName());
+            customerDTO.setEmail(customer.getEmail());
+            customerDTO.setContactPhoneNo(customer.getContactPhoneNo());
+            customerDTO.setAddress(new ModelMapper().map(customer.getAddress(), AddressDTO.class));
+            customerDTO.setCustomerImageUrl(customer.getCustomerImageUrl());
+            return customerDTO;
         }
         return null;
     }

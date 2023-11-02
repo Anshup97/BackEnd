@@ -35,7 +35,8 @@ public class Customer {
     @JoinColumn(name = "addressId", referencedColumnName = "addressId")
     private Address address;
 
-    @OneToOne(mappedBy = "customer")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="cartId", referencedColumnName = "cartId")
     private Cart cart;
 
 }

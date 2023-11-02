@@ -40,7 +40,7 @@ public class ProductController {
                                                                                Long categoryId){
         List<ProductDTO> productDTOList = productService.getProductsBySellerIdAndCategoryId(sellerId, categoryId);
         if(productDTOList == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         return new ResponseEntity<>(productDTOList, HttpStatus.OK);
     }
@@ -49,16 +49,16 @@ public class ProductController {
     public ResponseEntity<?> getProductByProductId(@RequestParam Long productId){
         ProductDTO productDTO = productService.getProduct(productId);
         if(productDTO == null){
-            return new ResponseEntity<>("Product not found with the given Id.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
-        return new ResponseEntity<>(productDTO, HttpStatus.FOUND);
+        return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 
     @PutMapping("/updateProduct")
     public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO){
         ProductDTO res = productService.updateProduct(productDTO);
         if(res == null){
-            return new ResponseEntity<>("Product to be updated not found.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -68,10 +68,11 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(@RequestParam Long productId){
         ProductDTO res = productService.deleteProduct(productId);
         if(res == null){
-            return new ResponseEntity<>("Product to be deleted not found.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
+
 
 
 }

@@ -18,6 +18,7 @@ import java.util.List;
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
+
     @PostMapping("/addCategory")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<CategoryDTO> addCategory(@RequestBody CategoryDTO categoryDTO){
@@ -34,7 +35,7 @@ public class CategoryController {
     public ResponseEntity<?> deleteCategory(@RequestParam Long categoryId){
         CategoryDTO category = categoryService.deleteCategory(categoryId);
         if(category == null){
-            return new ResponseEntity<>("Category to be deleted not found.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
@@ -44,7 +45,7 @@ public class CategoryController {
     public ResponseEntity<?> updateCategory(@RequestBody CategoryDTO categoryDTO){
         CategoryDTO category = categoryService.updateCategory(categoryDTO);
         if(category == null){
-            return new ResponseEntity<>("Category to be updated Not Found!", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         }
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
@@ -57,9 +58,9 @@ public class CategoryController {
     public ResponseEntity<Category> getCategoryById(@RequestParam("categoryId") Long categoryId){
         Category category = categoryService.getCategoryById(categoryId);
         if(category != null){
-            return new ResponseEntity<>(category, HttpStatus.FOUND);
+            return new ResponseEntity<>(category, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 

@@ -1,5 +1,6 @@
 package com.communitycart.BackEnd.dtos;
 
+import com.communitycart.BackEnd.entity.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

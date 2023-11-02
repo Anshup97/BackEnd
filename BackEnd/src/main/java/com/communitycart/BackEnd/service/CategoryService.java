@@ -2,7 +2,9 @@ package com.communitycart.BackEnd.service;
 
 import com.communitycart.BackEnd.dtos.CategoryDTO;
 import com.communitycart.BackEnd.entity.Category;
+import com.communitycart.BackEnd.entity.Product;
 import com.communitycart.BackEnd.repository.CategoryRepository;
+import com.communitycart.BackEnd.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.matcher.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ import java.util.List;
 public class CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    ProductRepository productRepository;
 
     public ModelMapper mapper(){
         return new ModelMapper();
@@ -37,6 +42,10 @@ public class CategoryService {
     public CategoryDTO deleteCategory(Long categoryId){
         Category category = categoryRepository.findByCategoryId(categoryId);
         if(category != null){
+            List<Product> productList = productRepository.findByCategoryId(categoryId);
+            for(Product p: productList){
+                productRepository.delete(p);
+            }
             categoryRepository.delete(category);
             return mapper().map(category,
                     CategoryDTO.class);

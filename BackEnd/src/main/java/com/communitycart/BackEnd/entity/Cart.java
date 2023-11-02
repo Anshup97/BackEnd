@@ -20,8 +20,7 @@ public class Cart {
     @GeneratedValue(generator = "cart_sequence", strategy = GenerationType.AUTO)
     private Long cartId;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "customerId", referencedColumnName = "customerId")
+    @OneToOne(mappedBy = "cart")
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL)

@@ -63,7 +63,10 @@ public class SellerService {
             st.add(pr.getCategoryId());
         }
         for(Long i: st){
-            categoryList.add(categoryRepository.findByCategoryId(i));
+            Category category = categoryRepository.findByCategoryId(i);
+            if(category != null){
+                categoryList.add(category);
+            }
         }
         return categoryList.stream()
                 .map(c -> new ModelMapper().map(c, CategoryDTO.class))
