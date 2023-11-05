@@ -16,5 +16,6 @@ public class CartItemDTO {
     private ProductDTO product;
     private Long quantity;
     private Long cartId;
+    private Double price;
 
 }

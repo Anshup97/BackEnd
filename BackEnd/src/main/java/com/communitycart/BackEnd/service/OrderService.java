@@ -6,8 +6,13 @@ import com.communitycart.BackEnd.dtos.OrderItemDTO;
 import com.communitycart.BackEnd.entity.*;
 import com.communitycart.BackEnd.repository.CustomerRepository;
 import com.communitycart.BackEnd.repository.OrderRepository;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +30,12 @@ public class OrderService {
 
     @Autowired
     private CartService cartService;
+
+    @Value("${STRIPE_URL}")
+    private String url;
+
+    @Value("${STRIPE_SECRET_KEY}")
+    private String secret;
 
     public ModelMapper mapper(){ return new ModelMapper(); }
 
@@ -125,5 +136,52 @@ public class OrderService {
 
         }
         return orderDTOS;
+    }
+
+    public Session createSession(Long customerId) throws StripeException {
+        String successUrl = url + "payment/success";
+        String failedUrl = url + "payment/failed";
+
+        Stripe.apiKey = secret;
+        List<SessionCreateParams.LineItem> sessionItemsList = new ArrayList<>();
+        Customer customer = customerRepository.findByCustomerId(customerId);
+        if(customer == null){
+            return null;
+        }
+        Cart cart = customer.getCart();
+        List<CartItem> cartItems = cart.getItems();
+        if(cartItems==null || cartItems.isEmpty()){
+            return null;
+        }
+        for(CartItem ci: cartItems){
+            sessionItemsList.add(createSessionLineItem(ci));
+        }
+        SessionCreateParams params = SessionCreateParams.builder()
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setCancelUrl(failedUrl)
+                .setSuccessUrl(successUrl)
+                .addAllLineItem(sessionItemsList)
+                .build();
+        return Session.create(params);
+    }
+
+    private SessionCreateParams.LineItem createSessionLineItem(CartItem ci) {
+        return SessionCreateParams.LineItem.builder()
+                .setQuantity(ci.getQuantity())
+                .setPriceData(createPriceData(ci))
+                .build();
+    }
+
+    private SessionCreateParams.LineItem.PriceData createPriceData(CartItem ci) {
+        double price = ci.getProduct().getProductPrice();
+        return SessionCreateParams.LineItem.PriceData.builder()
+                .setCurrency("inr")
+                .setUnitAmount((long)price)
+                .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                        .setName(ci.getProduct().getProductName())
+                        .setDescription(ci.getProduct().getProductDescription())
+                        .build())
+                .build();
     }
 }
