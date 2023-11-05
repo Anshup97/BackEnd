@@ -71,12 +71,13 @@ public class UserService {
         customerEntity.setContactPhoneNo(customer.getContactPhoneNo());
         customerEntity.setAddress(new ModelMapper().map(customer.getAddress(), Address.class));
         customerEntity.setCart(new Cart());
+        customerEntity.getCart().setTotalPrice(0D);
         createUser(new User(customer.getEmail(), encodedPassword, "BUYER"));
         return new ModelMapper().map(customerRepository.save(customerEntity), CustomerDTO.class);
     }
 
     public CustomerDTO updateCustomer(CustomerDTO customer){
-        Customer customerEntity = customerRepository.findByEmail(customer.getEmail());
+        Customer customerEntity = customerRepository.findCustomerByEmail(customer.getEmail());
         if(customerEntity != null){
             customerEntity.setName(customer.getName());
             customerEntity.setEmail(customer.getEmail());
@@ -89,7 +90,7 @@ public class UserService {
 
 
     public CustomerDTO deleteCustomer(String email){
-        Customer customer = customerRepository.findByEmail(email);
+        Customer customer = customerRepository.findCustomerByEmail(email);
         if(customer == null){
             return null;
         }
@@ -132,8 +133,8 @@ public class UserService {
     }
 
 
-    public CustomerDTO getCustomer(String email){
-        Customer customer = customerRepository.findByEmail(email);
+    public CustomerDTO getCustomer(Long customerId){
+        Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer != null){
             CustomerDTO customerDTO = new CustomerDTO();
             customerDTO.setCustomerId(customer.getCustomerId());
@@ -166,7 +167,7 @@ public class UserService {
     }
 
     public CustomerDTO uploadCustomerPhoto(String email, MultipartFile profilePhoto) throws Exception {
-        Customer customer = customerRepository.findByEmail(email);
+        Customer customer = customerRepository.findCustomerByEmail(email);
         if(customer != null){
             String url = fIleStorage.saveCustomerPhoto(profilePhoto, customer.getCustomerId());
             url = "http://172.17.84.65:8080/images/customers/" + url;

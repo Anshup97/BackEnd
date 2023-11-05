@@ -1,5 +1,7 @@
-package com.communitycart.BackEnd.dtos;
+package com.communitycart.BackEnd.entity;
 
+import com.communitycart.BackEnd.dtos.OrderItemDTO;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,15 +10,16 @@ import lombok.ToString;
 import java.util.Date;
 import java.util.List;
 
-
-
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class OrderDTO {
+@Entity
+@Table(name = "Orders")
+public class Order {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
     private Long customerId;
     private Long sellerId;
@@ -29,7 +32,11 @@ public class OrderDTO {
     private Date deliveredAt;
     private String status;
 
-    private List<OrderItemDTO> items;
-    private AddressDTO shippingAddress;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "orderId", referencedColumnName = "orderId")
+    private List<OrderItem> items;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "addressId", referencedColumnName = "addressId")
+    private Address shippingAddress;
 }

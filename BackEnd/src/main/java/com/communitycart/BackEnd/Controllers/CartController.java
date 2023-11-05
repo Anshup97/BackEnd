@@ -49,7 +49,7 @@ public class CartController {
     }
 
     @DeleteMapping("/removeCart")
-    public ResponseEntity<?> deleteFromCart(@RequestParam Long customerId, @RequestBody(required = false) Long productId){
+    public ResponseEntity<?> deleteFromCart(@RequestParam Long customerId, @RequestParam(required = false) Long productId){
         CartDTO cartDTO = cartService.deleteFromCart(customerId, productId);
         if(cartDTO == null){
             return new ResponseEntity<>(null, HttpStatus.OK);

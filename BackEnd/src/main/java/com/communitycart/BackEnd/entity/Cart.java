@@ -27,4 +27,6 @@ public class Cart {
     @JoinColumn(name = "cartId", referencedColumnName = "cartId")
     private List<CartItem> items;
 
+    private Double totalPrice = 0D;
+
 }

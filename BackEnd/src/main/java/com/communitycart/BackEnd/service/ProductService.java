@@ -3,6 +3,7 @@ package com.communitycart.BackEnd.service;
 import com.communitycart.BackEnd.dtos.ProductDTO;
 import com.communitycart.BackEnd.entity.Product;
 import com.communitycart.BackEnd.entity.Seller;
+import com.communitycart.BackEnd.repository.CartItemRepository;
 import com.communitycart.BackEnd.repository.ProductRepository;
 import com.communitycart.BackEnd.repository.SellerRepository;
 import org.modelmapper.ModelMapper;
@@ -22,6 +23,9 @@ public class ProductService {
 
     @Autowired
     private SellerRepository sellerRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     public List<ProductDTO> getAllProducts(){
         List<Product> productList = productRepository.findAll();
@@ -78,6 +82,7 @@ public class ProductService {
 
     public ProductDTO deleteProduct(Long productId) {
         Product product = productRepository.findProductByProductId(productId);
+        System.out.println("Product --> " + product);
         if(product == null){
             return null;
         }

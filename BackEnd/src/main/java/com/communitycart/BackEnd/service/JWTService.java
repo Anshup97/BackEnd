@@ -42,7 +42,7 @@ public class JWTService {
             if(user.getRole().equals("SELLER")){
                 claims.put("sellerId", sellerRepository.findByEmail(user.getEmailId()).getSellerId());
             } else {
-                claims.put("customerId", customerRepository.findByEmail(
+                claims.put("customerId", customerRepository.findCustomerByEmail(
                         user.getEmailId()).getCustomerId());
             }
         }

@@ -29,8 +29,8 @@ public class CustomerController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
     @GetMapping("/getCustomer")
-    public ResponseEntity<?> getCustomer(@RequestParam(name = "email") String email){
-        CustomerDTO customer = userService.getCustomer(email);
+    public ResponseEntity<?> getCustomer(@RequestParam Long customerId){
+        CustomerDTO customer = userService.getCustomer(customerId);
         System.out.println(customer);
         if(customer == null){
             return new ResponseEntity<>(null, HttpStatus.OK);
