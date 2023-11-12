@@ -71,6 +71,7 @@ public class CartService {
             cartItem.setCartId(cart.getCartId());
             cartItem.setProduct(new ModelMapper().map(item.getProduct(), Product.class));
             cartItem.setQuantity(item.getQuantity());
+
             items.add(cartItem);
             cart.setItems(items);
             double price = item.getProduct().getProductPrice() * item.getQuantity();
@@ -95,31 +96,16 @@ public class CartService {
         return mapper().map(customerRepository.save(customer).getCart(), CartDTO.class);
     }
 
-    public CartDTO updateCart(Long customerId, CartItemDTO item) {
+    public CartDTO updateCart(Long customerId, List<CartItemDTO> items) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer == null){
             return null;
         }
-        Cart cart = customer.getCart();
-        List<CartItem> cartItems = cart.getItems();
-        for(CartItem x: cartItems){
-            if(x.getProduct().getProductId().equals(item.getProduct().getProductId())){
-                if(item.getQuantity() > x.getQuantity()){
-                    double quantity = item.getQuantity()-x.getQuantity();
-                    cart.setTotalPrice(cart.getTotalPrice() +
-                            quantity * item.getProduct().getProductPrice());
-                } else {
-                    double quantity = x.getQuantity()-item.getQuantity();
-                    cart.setTotalPrice(cart.getTotalPrice() -
-                            quantity * item.getProduct().getProductPrice());
-                }
-                x.setQuantity(item.getQuantity());
-                break;
-            }
+        CartDTO cart = deleteFromCart(customerId, null);
+        for(CartItemDTO x: items){
+            cart = addToCart(customerId, x);
         }
-        cartRepository.save(cart);
-        customer.setCart(cart);
-        return mapper().map(customerRepository.save(customer).getCart(), CartDTO.class);
+        return cart;
     }
 
     @Transactional

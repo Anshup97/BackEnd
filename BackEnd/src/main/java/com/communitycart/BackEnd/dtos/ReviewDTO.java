@@ -1,6 +1,5 @@
 package com.communitycart.BackEnd.dtos;
 
-import com.communitycart.BackEnd.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +9,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CartItemDTO {
+public class ReviewDTO {
 
-    private Long cartItemId;
-    private ProductDTO product;
-    private Long quantity;
-    private Long cartId;
+    private Long reviewId;
+    private Integer rating;
+    private String review;
+    private Long productId;
+    private Long customerId;
 
 }

@@ -130,4 +130,23 @@ public class UserController {
         return new ResponseEntity<>(List.of(sellerDTO), HttpStatus.OK);
     }
 
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email){
+        String otp = userService.forgotPassword(email);
+        if(otp==null || otp.equalsIgnoreCase("")){
+            return ResponseEntity.ok(null);
+        }
+        return ResponseEntity.ok(otp);
+    }
+
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody AuthRequest authRequest){
+        User user = userService.changePassword(authRequest.getEmail(), authRequest.getPassword());
+        if(user==null){
+            return ResponseEntity.ok(null);
+        }
+        return ResponseEntity.ok(null);
+    }
+
 }

@@ -5,17 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.List;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CreateOrder {
+public class UpdateOrderBySeller {
 
     private Long orderId;
-    private Long customerId;
-    private List<CartItemDTO> items;
+    private boolean isPaid;
+    private Date deliveryDate;
+    private Date deliveredAt;
+    private String status;
 
 
 }

@@ -1,6 +1,7 @@
 package com.communitycart.BackEnd.Controllers;
 
 import com.communitycart.BackEnd.dtos.ProductDTO;
+import com.communitycart.BackEnd.dtos.ReviewDTO;
 import com.communitycart.BackEnd.entity.Product;
 import com.communitycart.BackEnd.repository.ProductRepository;
 import com.communitycart.BackEnd.service.ProductService;
@@ -74,5 +75,30 @@ public class ProductController {
     }
 
 
+    @PostMapping("/postReview")
+    public ResponseEntity<?> postReview(@RequestBody ReviewDTO review){
+        ReviewDTO rev = productService.postReview(review);
+        return new ResponseEntity<>(rev, HttpStatus.OK);
+    }
+
+    @GetMapping("/getReviews")
+    public ResponseEntity<?> getReviews(@RequestParam Long productId){
+        return ResponseEntity.ok(productService.getReviews(productId));
+    }
+
+    @GetMapping("/getReview")
+    public ResponseEntity<?> getReview(@RequestParam Long reviewId){
+        return ResponseEntity.ok(productService.getReview(reviewId));
+    }
+    @DeleteMapping("/deleteReview")
+    public ResponseEntity<?> deleteReview(@RequestParam Long reviewId){
+        productService.deleteReview(reviewId);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("/canReview")
+    public ResponseEntity<?> canReview(@RequestParam Long customerId, @RequestParam Long productId){
+        return ResponseEntity.ok(productService.canReview(customerId, productId));
+    }
 
 }

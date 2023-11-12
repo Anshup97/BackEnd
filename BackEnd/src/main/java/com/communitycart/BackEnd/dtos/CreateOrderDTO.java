@@ -1,20 +1,20 @@
 package com.communitycart.BackEnd.dtos;
 
-import com.communitycart.BackEnd.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CartItemDTO {
+public class CreateOrderDTO {
 
-    private Long cartItemId;
-    private ProductDTO product;
-    private Long quantity;
-    private Long cartId;
+    private Long customerId;
+    private String paymentMethod;
+    private String sessionId;
 
 }

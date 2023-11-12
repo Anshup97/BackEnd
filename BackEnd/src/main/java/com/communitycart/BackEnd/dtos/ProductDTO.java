@@ -23,5 +23,6 @@ public class ProductDTO {
     private String productImageUrl;
     private Long categoryId;
     private Long sellerId;
+    private Double rating;
 
 }

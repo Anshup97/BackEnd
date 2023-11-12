@@ -12,5 +12,5 @@ import lombok.ToString;
 public class StripeResponse {
 
     private String sessionId;
-
+    private String url;
 }

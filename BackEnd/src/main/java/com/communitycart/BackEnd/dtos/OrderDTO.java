@@ -28,6 +28,7 @@ public class OrderDTO {
     private Date deliveryDate;
     private Date deliveredAt;
     private String status;
+    private String sessionId;
 
     private List<OrderItemDTO> items;
     private AddressDTO shippingAddress;

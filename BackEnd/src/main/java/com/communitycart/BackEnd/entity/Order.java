@@ -31,6 +31,7 @@ public class Order {
     private Date deliveryDate;
     private Date deliveredAt;
     private String status;
+    private String sessionId;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "orderId", referencedColumnName = "orderId")

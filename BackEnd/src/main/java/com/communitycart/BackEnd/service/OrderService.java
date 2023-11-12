@@ -3,9 +3,11 @@ package com.communitycart.BackEnd.service;
 import com.communitycart.BackEnd.dtos.AddressDTO;
 import com.communitycart.BackEnd.dtos.OrderDTO;
 import com.communitycart.BackEnd.dtos.OrderItemDTO;
+import com.communitycart.BackEnd.dtos.UpdateOrderBySeller;
 import com.communitycart.BackEnd.entity.*;
 import com.communitycart.BackEnd.repository.CustomerRepository;
 import com.communitycart.BackEnd.repository.OrderRepository;
+import com.communitycart.BackEnd.repository.ProductRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -27,6 +29,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private CartService cartService;
@@ -56,10 +61,13 @@ public class OrderService {
                 .map(i -> new ModelMapper().map(i, OrderItemDTO.class))
                 .collect(Collectors.toList()));
         dto.setShippingAddress(mapper().map(order.getShippingAddress(), AddressDTO.class));
+        if(!order.getPaymentMethod().equalsIgnoreCase("COD")){
+            dto.setSessionId(order.getSessionId());
+        }
         return dto;
     }
 
-    public OrderDTO checkOut(Long customerId, String paymentMethod) {
+    public OrderDTO placeOrder(Long customerId, String paymentMethod, String sessionId) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer == null){
             return null;
@@ -96,6 +104,9 @@ public class OrderService {
                 totalPrice += tot;
                 orderItem.setTotalPrice(tot);
                 orderItems.add(orderItem);
+                Product p = productRepository.findProductByProductId(item.getProduct().getProductId());
+                p.setProductQuantity(p.getProductQuantity()-item.getQuantity());
+                productRepository.save(p);
             }
             Order order = new Order();
             order.setCustomerId(customerId);
@@ -108,6 +119,7 @@ public class OrderService {
             } else {
                 order.setShippingCharges(5D);
                 order.setPaid(true);
+                order.setSessionId(sessionId);
             }
             order.setCreatedAt(new Date());
             order.setStatus("Placed");
@@ -136,6 +148,14 @@ public class OrderService {
 
         }
         return orderDTOS;
+    }
+
+    public OrderDTO getOrderById(Long orderId){
+        Order order = orderRepository.findByOrderId(orderId);
+        if(order == null){
+            return null;
+        }
+        return customMap(order);
     }
 
     public Session createSession(Long customerId) throws StripeException {
@@ -177,11 +197,33 @@ public class OrderService {
         double price = ci.getProduct().getProductPrice();
         return SessionCreateParams.LineItem.PriceData.builder()
                 .setCurrency("inr")
-                .setUnitAmount((long)price)
+                .setUnitAmount((long)price * 100)
                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                         .setName(ci.getProduct().getProductName())
                         .setDescription(ci.getProduct().getProductDescription())
                         .build())
                 .build();
+    }
+
+    public OrderDTO updateOrder(UpdateOrderBySeller updateOrderBySeller) {
+        Order order = orderRepository.findByOrderId(updateOrderBySeller.getOrderId());
+        if(order == null){
+            return null;
+        }
+        if(updateOrderBySeller.isPaid() != order.isPaid()){
+            order.setPaid(updateOrderBySeller.isPaid());
+        }
+        order.setPaid(updateOrderBySeller.isPaid());
+        if(updateOrderBySeller.getDeliveryDate() != null){
+            order.setDeliveryDate(updateOrderBySeller.getDeliveryDate());
+        }
+        if(updateOrderBySeller.getDeliveredAt() != null){
+            order.setDeliveredAt(updateOrderBySeller.getDeliveredAt());
+        }
+        if(updateOrderBySeller.getStatus() != null){
+            order.setStatus(updateOrderBySeller.getStatus());
+        }
+        Order order1 = orderRepository.save(order);
+        return customMap(order1);
     }
 }

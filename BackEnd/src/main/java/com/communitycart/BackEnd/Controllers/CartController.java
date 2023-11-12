@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -40,8 +41,8 @@ public class CartController {
     }
 
     @PutMapping("/updateCart")
-    public ResponseEntity<?> updateCart(@RequestParam Long customerId, @RequestBody CartItemDTO item){
-        CartDTO cartDTO = cartService.updateCart(customerId, item);
+    public ResponseEntity<?> updateCart(@RequestParam Long customerId, @RequestBody List<CartItemDTO> cartItems){
+        CartDTO cartDTO = cartService.updateCart(customerId, cartItems);
         if(cartDTO == null){
             return new ResponseEntity<>(null, HttpStatus.OK);
         }

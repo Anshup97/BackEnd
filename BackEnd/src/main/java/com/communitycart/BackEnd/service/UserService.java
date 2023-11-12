@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class UserService {
@@ -33,6 +34,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private FIleStorage fIleStorage;
+    @Autowired
+    private EmailSenderService emailService;
 
     @Autowired
     private ImageStorageService imageStorageService;
@@ -175,5 +178,28 @@ public class UserService {
             return new ModelMapper().map(customerRepository.save(customer), CustomerDTO.class);
         }
         return null;
+    }
+
+    public String forgotPassword(String email){
+        User user = usersRepository.findByEmailId(email);
+        if(user == null){
+            return null;
+        }
+        String otp = String.valueOf(new Random().nextInt(999999));
+        String sub = "One Time Password (OTP) for Account recovery process on Community Cart";
+        String body = "Your OTP for Forgot Password recovery of user id " + email  + "on Community Cart is "
+                 + otp;
+        emailService.sendSimpleEmail(email, body, sub);
+        return otp;
+    }
+
+    public User changePassword(String email, String password){
+        System.out.println(password);
+        User user = usersRepository.findByEmailId(email);
+        if(user == null){
+            return null;
+        }
+        user.setPassword(passwordEncoder.encode(password));
+        return usersRepository.save(user);
     }
 }
