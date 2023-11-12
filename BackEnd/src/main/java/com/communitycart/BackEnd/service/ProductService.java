@@ -102,6 +102,24 @@ public class ProductService {
         return productDTO;
     }
 
+    public void updateRating(Long productId){
+        Product product = productRepository.findProductByProductId(productId);
+        if(product != null){
+            List<Review> reviews = reviewRepository.findByProductId(productId);
+            if(!reviews.isEmpty()){
+                Integer ratings = 0;
+                for(Review r: reviews){
+                    ratings += r.getRating();
+                }
+                Double productRating = (double) (ratings / reviews.size());
+                product.setRating(productRating);
+            } else {
+                product.setRating(0D);
+            }
+            productRepository.save(product);
+        }
+    }
+
     public boolean canReview(Long customerId, Long productId){
         List<OrderDTO> orders = orderService.getOrders(customerId, null);
         for(OrderDTO o: orders){
@@ -132,14 +150,7 @@ public class ProductService {
             dto = new ModelMapper().map(reviewRepository.save(new ModelMapper().map(review, Review.class)),
                     ReviewDTO.class);
         }
-        List<Review> reviews = reviewRepository.findByProductId(review.getProductId());
-        Integer ratings = 0;
-        for(Review r: reviews){
-            ratings += r.getRating();
-        }
-        Double productRating = (double) (ratings / reviews.size());
-        product.setRating(productRating);
-        productRepository.save(product);
+        updateRating(review.getProductId());
         return dto;
     }
 
@@ -167,6 +178,8 @@ public class ProductService {
 
     public void deleteReview(Long reviewId){
         Review review = reviewRepository.findByReviewId(reviewId);
+        Long productId = review.getProductId();
         reviewRepository.delete(review);
+        updateRating(productId);
     }
 }
