@@ -17,9 +17,9 @@ class EmailSenderServiceTest {
 //        emailSenderService.sendSimpleEmail("abhinavtv97@gmail.com", "Hello TV Pula!!", ":)");
 //    }
 
-    @Test
-    public void sendHtmlEmailTest(){
-        emailSenderService.sendHtmlEmail("anshumanp97@gmail.com");
-    }
+//    @Test
+//    public void sendHtmlEmailTest(){
+//        emailSenderService.sendHtmlEmail("anshumanp97@gmail.com");
+//    }
 
 }

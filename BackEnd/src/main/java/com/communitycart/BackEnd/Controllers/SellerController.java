@@ -1,6 +1,7 @@
 package com.communitycart.BackEnd.Controllers;
 
 import com.communitycart.BackEnd.dtos.CategoryDTO;
+import com.communitycart.BackEnd.dtos.Location;
 import com.communitycart.BackEnd.dtos.ProductDTO;
 import com.communitycart.BackEnd.dtos.SellerDTO;
 import com.communitycart.BackEnd.entity.Category;
@@ -114,11 +115,18 @@ public class SellerController {
         if(categoryId == null){
             return new ResponseEntity<>(sellerDTOS, HttpStatus.OK);
         }
-        sellerDTOS = sellerService.getNearbySellersByCategory(categoryId);
+        Location loc = new Location(sourceLat, sourceLng, elevation);
+        sellerDTOS = sellerService.getNearbySellersByCategory(loc, categoryId);
         if(sellerDTOS.isEmpty()){
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         return ResponseEntity.ok(sellerDTOS);
+    }
+
+    @GetMapping("/getNearBySellerCategories")
+    public ResponseEntity<?> getNearbyCategories(@RequestBody Location location){
+        return ResponseEntity.ok(sellerService.getNearbySellersCategory(location.getLatitude(), location.getLongitude(),
+                location.getElevation()));
     }
 
 }

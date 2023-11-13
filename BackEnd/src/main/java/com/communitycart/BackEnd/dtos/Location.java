@@ -6,12 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
-public class AuthRequest {
-
-    private String email;
-    private String password;
-    private boolean sso;
+public class Location {
+    private Double latitude;
+    private Double longitude;
+    private Double elevation;
 }

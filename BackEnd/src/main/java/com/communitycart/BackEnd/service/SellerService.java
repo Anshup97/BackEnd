@@ -1,6 +1,7 @@
 package com.communitycart.BackEnd.service;
 
 import com.communitycart.BackEnd.dtos.CategoryDTO;
+import com.communitycart.BackEnd.dtos.Location;
 import com.communitycart.BackEnd.dtos.ProductDTO;
 import com.communitycart.BackEnd.dtos.SellerDTO;
 import com.communitycart.BackEnd.entity.Category;
@@ -166,9 +167,31 @@ public class SellerService {
                 .toList();
     }
 
-
-    public List<SellerDTO> getNearbySellersByCategory(Long categoryId) {
+    public List<CategoryDTO> getNearbySellersCategory(Double lat, Double longi, Double el){
         List<Seller> sellers = sellerRepository.findAll();
+        sellers = sellers.stream()
+                .filter(s -> CalculateDistance.distance(lat, longi,s.getAddress().getLatitude(),
+                        s.getAddress().getLongitude(), el, s.getAddress().getElevation()) <= 10)
+                .collect(Collectors.toList());
+        Set<Category> categories = new HashSet<>();
+        for(Seller s: sellers){
+            List<Product> products = s.getProducts();
+            for(Product p: products){
+                categories.add(categoryRepository.findByCategoryId(p.getCategoryId()));
+            }
+        }
+        return categories.stream()
+                .map(c -> new ModelMapper().map(c, CategoryDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
+    public List<SellerDTO> getNearbySellersByCategory(Location location, Long categoryId) {
+        List<Seller> sellers = sellerRepository.findAll();
+        sellers = sellers.stream()
+                .filter(s -> CalculateDistance.distance(location.getLatitude(), location.getLongitude(),s.getAddress().getLatitude(),
+                        s.getAddress().getLongitude(), location.getElevation(), s.getAddress().getElevation()) <= 10)
+                .collect(Collectors.toList());
         Set<Seller> res = new HashSet<>();
         for(Seller seller: sellers){
             List<Product> products = seller.getProducts();

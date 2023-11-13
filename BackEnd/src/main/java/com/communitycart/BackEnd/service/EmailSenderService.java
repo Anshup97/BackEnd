@@ -76,24 +76,87 @@ public class EmailSenderService {
     }
 
     @Async
-    public void sendHtmlEmail(String to) {
+    public void sendHtmlEmail(Order order) {
         try {
-//            Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
-//            String name = customer.getName();
-//            templateEngine = new TemplateEngine();
-//            Context context = new Context();
-//            context.setVariables(Map.of("orderId", 12, "totalPrice", 25.69));
-//            String text = templateEngine.process("orderConfirmation", context);
+            Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                     StandardCharsets.UTF_8.name());
             helper.setPriority(1);
-            helper.setSubject("Your CommunityCart order " + 12 + " of "
-                    + 5 + " items.");
+            helper.setSubject("Your CommunityCart order " + order.getOrderId() + " of "
+                    + order.getItems().size() + " items.");
             helper.setFrom(from);
-            helper.setTo(to);
+            helper.setTo(customer.getEmail());
             helper.setText(thymeLeafService.createContent("orderConfirmation.html",
-                    Map.of("orderId", 12, "totalPrice", 25.69, "name", "Anshuman")), true);
+                    Map.of("orderId", order.getOrderId(), "totalPrice", order.getTotalPrice(), "name",
+                            customer.getName())), true);
+            mailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+    public void sendUpdateDeliveryDate(Order order, String date) {
+        try {
+            Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            helper.setPriority(1);
+            helper.setSubject("Your order will be delivered by " + date + ".");
+            helper.setFrom(from);
+            helper.setTo(customer.getEmail());
+            helper.setText(thymeLeafService.createContent("deliverydate.html",
+                    Map.of("orderId", order.getOrderId(), "deliveryDate", date,
+                            "totalPrice", order.getTotalPrice(),
+                            "status", order.getStatus(),
+                            "name",
+                            customer.getName())), true);
+            mailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+    public void sendDeliveryStatus(Order order, String status) {
+        try {
+            Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            helper.setPriority(1);
+            helper.setSubject("Your order is " + status + ".");
+            helper.setFrom(from);
+            helper.setTo(customer.getEmail());
+            helper.setText(thymeLeafService.createContent("orderStatus.html",
+                    Map.of("orderId", order.getOrderId(), "status", status,
+                            "totalPrice", order.getTotalPrice(),
+                            "deliveryDate", order.getDeliveryDate(),
+                            "name",
+                            customer.getName())), true);
+            mailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+    public void sendDeliveredStatus(Order order, String status) {
+        try {
+            Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            helper.setPriority(1);
+            helper.setSubject("Your order " + order.getOrderId() + " is " + status + ".");
+            helper.setFrom(from);
+            helper.setTo(customer.getEmail());
+            helper.setText(thymeLeafService.createContent("delivered.html",
+                    Map.of("orderId", order.getOrderId(),
+                            "name",
+                            customer.getName())), true);
             mailSender.send(message);
         } catch (Exception exception) {
             System.out.println(exception.getMessage());

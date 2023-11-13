@@ -4,16 +4,17 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class Demo {
     public static void main(String[] args) {
-        Path path = Paths.get("C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\images\\product");
-        System.out.println(path.toString());
-        File file = new File(path.toString());
-        for(File fi : file.listFiles()){
-            System.out.println(fi.getName());
-
-        }
+        Date date = new Date();
+        LocalDate localDate = date.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                                .toLocalDate();
+        System.out.println(localDate.toString());
 
     }
 }

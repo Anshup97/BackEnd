@@ -12,6 +12,7 @@ import com.communitycart.BackEnd.service.JWTService;
 import com.communitycart.BackEnd.service.SellerService;
 import com.communitycart.BackEnd.service.UserService;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import io.jsonwebtoken.io.Decoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.stream.Location;
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 
@@ -45,6 +48,15 @@ public class UserController {
     }
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest){
+        if(authRequest.isSso()){
+            User user = userService.getUser(authRequest.getEmail());
+            if(user == null){
+                return new ResponseEntity<>("Invalid User Request", HttpStatus.FORBIDDEN);
+            }
+            return new ResponseEntity<>( jwtService.generateToken(authRequest.getEmail()),
+                        HttpStatus.OK);
+
+        }
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authRequest.getEmail(), authRequest.getPassword()
         ));

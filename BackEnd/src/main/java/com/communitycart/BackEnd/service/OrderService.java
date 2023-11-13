@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,9 @@ public class OrderService {
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
 
     @Value("${STRIPE_URL}")
     private String url;
@@ -127,6 +131,7 @@ public class OrderService {
             order.setShippingAddress(customer.getAddress());
             Order savedOrder = orderRepository.save(order);
             cartService.deleteFromCart(customerId, null);
+            emailSenderService.sendHtmlEmail(savedOrder);
             return customMap(savedOrder);
         }
 
@@ -210,18 +215,37 @@ public class OrderService {
         if(order == null){
             return null;
         }
-        if(updateOrderBySeller.isPaid() != order.isPaid()){
-            order.setPaid(updateOrderBySeller.isPaid());
-        }
-        order.setPaid(updateOrderBySeller.isPaid());
         if(updateOrderBySeller.getDeliveryDate() != null){
+            if(order.getDeliveryDate() == null){
+                String date = updateOrderBySeller.getDeliveryDate()
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .toString();
+                emailSenderService.sendUpdateDeliveryDate(order, date);
+            }
             order.setDeliveryDate(updateOrderBySeller.getDeliveryDate());
         }
         if(updateOrderBySeller.getDeliveredAt() != null){
+            if(updateOrderBySeller.getDeliveredAt() != order.getDeliveredAt()){
+                String date = updateOrderBySeller.getDeliveredAt()
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .toString();
+                emailSenderService.sendDeliveredStatus(order, "Delivered");
+            }
             order.setDeliveredAt(updateOrderBySeller.getDeliveredAt());
+            order.setStatus("Delivered");
+            order.setPaid(true);
         }
         if(updateOrderBySeller.getStatus() != null){
-            order.setStatus(updateOrderBySeller.getStatus());
+            if(!order.getStatus().equalsIgnoreCase(updateOrderBySeller.getStatus())){
+                    if(!order.getStatus().equalsIgnoreCase("Delivered")){
+                        order.setStatus(updateOrderBySeller.getStatus());
+                        emailSenderService.sendDeliveryStatus(order, updateOrderBySeller.getStatus());
+                    }
+            }
         }
         Order order1 = orderRepository.save(order);
         return customMap(order1);
