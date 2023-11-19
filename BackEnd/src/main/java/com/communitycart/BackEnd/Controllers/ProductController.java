@@ -1,6 +1,7 @@
 package com.communitycart.BackEnd.Controllers;
 
 import com.communitycart.BackEnd.dtos.ProductDTO;
+import com.communitycart.BackEnd.dtos.ProductOutOfStock;
 import com.communitycart.BackEnd.dtos.ReviewDTO;
 import com.communitycart.BackEnd.entity.Product;
 import com.communitycart.BackEnd.repository.ProductRepository;
@@ -9,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -99,6 +101,13 @@ public class ProductController {
     @GetMapping("/canReview")
     public ResponseEntity<?> canReview(@RequestParam Long customerId, @RequestParam Long productId){
         return ResponseEntity.ok(productService.canReview(customerId, productId));
+    }
+
+    @PreAuthorize("hasAuthority('SELLER')")
+    @PutMapping("/outOfStock")
+    public ResponseEntity<?> productOutOfStock(@RequestBody ProductOutOfStock stock){
+        System.out.println(stock.isAvailable());
+        return ResponseEntity.ok(productService.setOutOfStock(stock));
     }
 
 }

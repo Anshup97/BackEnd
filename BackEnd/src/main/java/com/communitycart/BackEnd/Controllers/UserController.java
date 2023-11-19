@@ -51,7 +51,7 @@ public class UserController {
         if(authRequest.isSso()){
             User user = userService.getUser(authRequest.getEmail());
             if(user == null){
-                return new ResponseEntity<>("Invalid User Request", HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(null, HttpStatus.OK);
             }
             return new ResponseEntity<>( jwtService.generateToken(authRequest.getEmail()),
                         HttpStatus.OK);
@@ -64,8 +64,8 @@ public class UserController {
             return new ResponseEntity<>( jwtService.generateToken(authRequest.getEmail()),
                     HttpStatus.OK);
         }
-        return new ResponseEntity<>( "Invalid User Request",
-                HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>( null,
+                HttpStatus.OK);
     }
     @GetMapping("/getUser/{emailId}")
     public ResponseEntity<?> getRole(@PathVariable String emailId){

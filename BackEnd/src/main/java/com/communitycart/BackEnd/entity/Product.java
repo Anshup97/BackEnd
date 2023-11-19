@@ -34,5 +34,6 @@ public class Product {
     private Double rating;
     private Long categoryId;
     private Long sellerId;
+    private boolean isAvailable;
 
 }

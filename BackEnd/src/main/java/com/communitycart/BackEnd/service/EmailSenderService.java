@@ -84,7 +84,7 @@ public class EmailSenderService {
                     StandardCharsets.UTF_8.name());
             helper.setPriority(1);
             helper.setSubject("Your CommunityCart order " + order.getOrderId() + " of "
-                    + order.getItems().size() + " items.");
+                    + order.getItems().size() + " items placed.");
             helper.setFrom(from);
             helper.setTo(customer.getEmail());
             helper.setText(thymeLeafService.createContent("orderConfirmation.html",
@@ -130,12 +130,21 @@ public class EmailSenderService {
             helper.setSubject("Your order is " + status + ".");
             helper.setFrom(from);
             helper.setTo(customer.getEmail());
-            helper.setText(thymeLeafService.createContent("orderStatus.html",
-                    Map.of("orderId", order.getOrderId(), "status", status,
-                            "totalPrice", order.getTotalPrice(),
-                            "deliveryDate", order.getDeliveryDate(),
-                            "name",
-                            customer.getName())), true);
+            if(order.getDeliveryDate() != null){
+                helper.setText(thymeLeafService.createContent("orderStatus.html",
+                        Map.of("orderId", order.getOrderId(), "status", status,
+                                "totalPrice", order.getTotalPrice(),
+                                "deliveryDate", order.getDeliveryDate(),
+                                "name",
+                                customer.getName())), true);
+            } else {
+                helper.setText(thymeLeafService.createContent("orderStatus.html",
+                        Map.of("orderId", order.getOrderId(), "status", status,
+                                "totalPrice", order.getTotalPrice(),
+                                "deliveryDate", "To be confirmed by the seller.",
+                                "name",
+                                customer.getName())), true);
+            }
             mailSender.send(message);
         } catch (Exception exception) {
             System.out.println(exception.getMessage());

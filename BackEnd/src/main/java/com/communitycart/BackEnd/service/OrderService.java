@@ -215,36 +215,40 @@ public class OrderService {
         if(order == null){
             return null;
         }
-        if(updateOrderBySeller.getDeliveryDate() != null){
-            if(order.getDeliveryDate() == null){
-                String date = updateOrderBySeller.getDeliveryDate()
-                        .toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()
-                        .toString();
-                emailSenderService.sendUpdateDeliveryDate(order, date);
+        if(!order.getStatus().equalsIgnoreCase("Delivered")){
+            if(updateOrderBySeller.getDeliveryDate() != null){
+                if(order.getDeliveryDate() == null){
+                    String date = updateOrderBySeller.getDeliveryDate()
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                            .toString();
+                    emailSenderService.sendUpdateDeliveryDate(order, date);
+                }
+                order.setDeliveryDate(updateOrderBySeller.getDeliveryDate());
             }
-            order.setDeliveryDate(updateOrderBySeller.getDeliveryDate());
-        }
-        if(updateOrderBySeller.getDeliveredAt() != null){
-            if(updateOrderBySeller.getDeliveredAt() != order.getDeliveredAt()){
-                String date = updateOrderBySeller.getDeliveredAt()
-                        .toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()
-                        .toString();
-                emailSenderService.sendDeliveredStatus(order, "Delivered");
+            if(updateOrderBySeller.getDeliveredAt() != null){
+                if(updateOrderBySeller.getDeliveredAt() != order.getDeliveredAt()){
+                    String date = updateOrderBySeller.getDeliveredAt()
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                            .toString();
+                    emailSenderService.sendDeliveredStatus(order, "Delivered");
+                }
+                order.setDeliveredAt(updateOrderBySeller.getDeliveredAt());
+                order.setStatus("Delivered");
             }
-            order.setDeliveredAt(updateOrderBySeller.getDeliveredAt());
-            order.setStatus("Delivered");
-            order.setPaid(true);
-        }
-        if(updateOrderBySeller.getStatus() != null){
-            if(!order.getStatus().equalsIgnoreCase(updateOrderBySeller.getStatus())){
+            if(updateOrderBySeller.getStatus() != null){
+                if(!order.getStatus().equalsIgnoreCase(updateOrderBySeller.getStatus())){
                     if(!order.getStatus().equalsIgnoreCase("Delivered")){
                         order.setStatus(updateOrderBySeller.getStatus());
                         emailSenderService.sendDeliveryStatus(order, updateOrderBySeller.getStatus());
                     }
+                }
+            }
+            if(updateOrderBySeller.isPaid() && order.getPaymentMethod().equalsIgnoreCase("COD")){
+                order.setPaid(true);
             }
         }
         Order order1 = orderRepository.save(order);

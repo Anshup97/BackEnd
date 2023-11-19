@@ -94,6 +94,7 @@ public class SellerService {
     public ProductDTO addProduct(ProductDTO product){
         Seller seller = sellerRepository.findById(product.getSellerId()).get();
         Product productEntity = new ModelMapper().map(product, Product.class);
+        productEntity.setAvailable(true);
         List<Product> productList = seller.getProducts();
         if(productList == null){
             productList = new ArrayList<>();
@@ -158,9 +159,13 @@ public class SellerService {
 
     public List<SellerDTO> getNearbySellers(Double lat, Double longi, Double el){
         List<Seller> sellers = sellerRepository.findAll();
+//        for(Seller s: sellers){
+//            System.out.println(CalculateDistance.distance(lat, s.getAddress().getLatitude(), longi,
+//                        s.getAddress().getLongitude(), el, s.getAddress().getElevation()));
+//        }
         sellers = sellers.stream()
-                .filter(s -> CalculateDistance.distance(lat, longi,s.getAddress().getLatitude(),
-                        s.getAddress().getLongitude(), el, s.getAddress().getElevation()) <= 10)
+                .filter(s -> CalculateDistance.distance(lat,s.getAddress().getLatitude(), longi,
+                        s.getAddress().getLongitude(), el, s.getAddress().getElevation())/1000 <= 10)
                 .collect(Collectors.toList());
         return sellers.stream()
                 .map(s -> new ModelMapper().map(s, SellerDTO.class))

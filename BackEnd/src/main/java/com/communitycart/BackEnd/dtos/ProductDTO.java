@@ -24,5 +24,6 @@ public class ProductDTO {
     private Long categoryId;
     private Long sellerId;
     private Double rating;
+    private boolean available;
 
 }

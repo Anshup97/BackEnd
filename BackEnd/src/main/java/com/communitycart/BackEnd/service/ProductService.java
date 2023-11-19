@@ -1,9 +1,6 @@
 package com.communitycart.BackEnd.service;
 
-import com.communitycart.BackEnd.dtos.OrderDTO;
-import com.communitycart.BackEnd.dtos.OrderItemDTO;
-import com.communitycart.BackEnd.dtos.ProductDTO;
-import com.communitycart.BackEnd.dtos.ReviewDTO;
+import com.communitycart.BackEnd.dtos.*;
 import com.communitycart.BackEnd.entity.Product;
 import com.communitycart.BackEnd.entity.Review;
 import com.communitycart.BackEnd.entity.Seller;
@@ -181,5 +178,14 @@ public class ProductService {
         Long productId = review.getProductId();
         reviewRepository.delete(review);
         updateRating(productId);
+    }
+
+    public ProductDTO setOutOfStock(ProductOutOfStock stock) {
+        Product product = productRepository.findProductByProductId(stock.getProductId());
+        if(product == null || !product.getSellerId().equals(stock.getSellerId())){
+            return null;
+        }
+        product.setAvailable(stock.isAvailable());
+        return new ModelMapper().map(productRepository.save(product), ProductDTO.class);
     }
 }
