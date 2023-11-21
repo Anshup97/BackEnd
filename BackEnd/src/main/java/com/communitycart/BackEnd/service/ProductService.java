@@ -186,6 +186,7 @@ public class ProductService {
             return null;
         }
         product.setAvailable(stock.isAvailable());
+        product.setProductQuantity(0L);
         return new ModelMapper().map(productRepository.save(product), ProductDTO.class);
     }
 }

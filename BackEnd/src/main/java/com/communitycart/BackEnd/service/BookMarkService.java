@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Bookmark service class to add, remove and view bookmarked products
+ * of a user.
+ */
 @Service
 public class BookMarkService {
 
@@ -23,9 +27,13 @@ public class BookMarkService {
     @Autowired
     private ProductRepository productRepository;
 
-    public ModelMapper mapper(){
-        return new ModelMapper();
-    }
+    /**
+     * Bookmark a product.
+     * Product bookmarked by a customer is saved in the database.
+     * @param customerId
+     * @param productId
+     * @return
+     */
     public ViewBookMarkDTO addBookmark(Long customerId, Long productId) {
         if(repository.findBookMarkByCustomerIdAndProductId(customerId, productId) != null){
             return viewBookmarks(customerId);
@@ -37,6 +45,11 @@ public class BookMarkService {
         return viewBookmarks(customerId);
     }
 
+    /**
+     * Get all the products bookmarked by a customer using customerId.
+     * @param customerId
+     * @return
+     */
     public ViewBookMarkDTO viewBookmarks(Long customerId) {
         List<BookMark> bookMarks = repository.findByCustomerId(customerId);
         ViewBookMarkDTO bm = new ViewBookMarkDTO();
@@ -54,6 +67,12 @@ public class BookMarkService {
         return bm;
     }
 
+    /**
+     * Remove bookmark.
+     * @param customerId
+     * @param productId
+     * @return
+     */
     public ViewBookMarkDTO removeBookmark(Long customerId, Long productId) {
         BookMark bookMark = repository.findBookMarkByCustomerIdAndProductId(customerId, productId);
         if(bookMark != null){

@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * DTO for bookmarked products of a customer.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

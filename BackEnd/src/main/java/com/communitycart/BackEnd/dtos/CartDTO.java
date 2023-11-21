@@ -9,6 +9,9 @@ import lombok.ToString;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Cart DTO for showing products in the cart of a user.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

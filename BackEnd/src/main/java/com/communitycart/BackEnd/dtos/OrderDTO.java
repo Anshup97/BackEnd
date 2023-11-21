@@ -8,8 +8,11 @@ import lombok.ToString;
 import java.util.Date;
 import java.util.List;
 
-
-
+/**
+ * Order DTO.
+ * It has list of order items.
+ * Used for showing sellers and customers order details.
+ */
 
 @Data
 @NoArgsConstructor

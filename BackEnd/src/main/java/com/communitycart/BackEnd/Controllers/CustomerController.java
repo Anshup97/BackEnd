@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Customer API class for managing customers.
+ */
 @RestController
 @CrossOrigin("*")
 public class CustomerController {
@@ -17,6 +20,14 @@ public class CustomerController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add a customer to the database.
+     * Customer details entered by the customer while signup is passed to this endpoint
+     * and customer is added.
+     * If customer is already present, it doesn't add the customer and returns null.
+     * @param customer
+     * @return
+     */
     @PostMapping("/addCustomer")
     public ResponseEntity<CustomerDTO> addCustomer(@RequestBody CustomerDTO customer){
         User user = userService.getUser(customer.getEmail());
@@ -28,6 +39,12 @@ public class CustomerController {
         }
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
+
+    /**
+     * Get customer details from database using customerId.
+     * @param customerId
+     * @return
+     */
     @GetMapping("/getCustomer")
     public ResponseEntity<?> getCustomer(@RequestParam Long customerId){
         CustomerDTO customer = userService.getCustomer(customerId);
@@ -38,6 +55,11 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
+    /**
+     * Delete a customer.
+     * @param email
+     * @return
+     */
     @DeleteMapping("/deleteCustomer")
     @Transactional
     public ResponseEntity<?> deleteCustomer(@RequestParam String email){

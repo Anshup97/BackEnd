@@ -8,6 +8,9 @@ import lombok.ToString;
 
 import java.util.Date;
 
+/**
+ * DTO used for updating order details by seller.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

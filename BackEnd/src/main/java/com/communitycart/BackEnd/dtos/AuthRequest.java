@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * DTO for authentication request from frontend to backend.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

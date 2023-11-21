@@ -29,6 +29,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Seller API to manage sellers and their functionalities.
+ */
 @RestController
 @CrossOrigin(origins = "*")
 public class SellerController {
@@ -42,16 +45,26 @@ public class SellerController {
     @Autowired
     private FIleStorage fIleStorage;
 
+    /*
+    Get list of all sellers.
+    Used if the customer is not logged in.
+     */
     @GetMapping("/getAllSellers")
     public ResponseEntity<List<SellerDTO>> getAllSellers(){
         return ResponseEntity.ok(sellerService.getAllSellers());
     }
 
+    /*
+    This endpoint is used to add product for a seller.
+     */
     @PostMapping("/addProduct")
     public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO){
         return new ResponseEntity<>(sellerService.addProduct(productDTO), HttpStatus.CREATED);
     }
 
+    /*
+    Upload image for a product.
+     */
     @PostMapping(value = "/uploadImage/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProductImage(@RequestParam("productId") Long productId,
                                                      @RequestPart("productImage") MultipartFile productImage) throws Exception {
@@ -63,16 +76,19 @@ public class SellerController {
         return ResponseEntity.ok(isUploaded);
     }
 
+    /*
+    Update product details.
+     */
     @PostMapping("/updateProduct")
     public ResponseEntity<ProductDTO> updateProduct(@RequestBody ProductDTO productDTO){
         return ResponseEntity.ok(sellerService.updateProduct(productDTO));
     }
 
-    @PostMapping("/addCategory/{email}")
-    public ResponseEntity<CategoryDTO> addCategory(@PathVariable("email") String email, @RequestBody CategoryDTO category){
-        return new ResponseEntity<>(null, HttpStatus.OK);
-    }
-
+    /*
+    Get list of all product categories sold by the seller.
+    If sellerId is null, return list of all categories.
+    Used if the customer is not logged in.
+     */
     @GetMapping("/getSellerCategories")
     public ResponseEntity<?> getSellerCategories(@RequestParam(value = "sellerId", required = false) Long sellerId){
         if(sellerId == null){
@@ -87,6 +103,9 @@ public class SellerController {
         return ResponseEntity.ok(sellerService.getCategoriesBySeller(sellerId));
     }
 
+    /*
+    Get category icon to display in the UI.
+     */
     @GetMapping("/getCategoryPhoto/{categoryId}")
     public ResponseEntity<?> getCategoryPhoto(@PathVariable(name = "categoryId") Long categoryId){
         return ResponseEntity.status(HttpStatus.OK)
@@ -94,6 +113,9 @@ public class SellerController {
                 .body(sellerService.getCategoryPhoto(categoryId));
     }
 
+    /*
+    Get seller products filtered by seller email and product category.
+     */
     @GetMapping("/getProducts/{email}/{categoryId}")
     public ResponseEntity<List<ProductDTO>> getSellerProducts(@PathVariable("email") String email,
                                                               @PathVariable("categoryId") Long categoryId){
@@ -104,6 +126,15 @@ public class SellerController {
         return new ResponseEntity<>(productDTOS, HttpStatus.OK);
     }
 
+    /**
+     * Get list of nearby sellers as per the customer's location.
+     * Used when the customer is logged in.
+     * @param sourceLat
+     * @param sourceLng
+     * @param elevation
+     * @param categoryId
+     * @return
+     */
     @GetMapping("/getNearbySellers")
     public ResponseEntity<?> getNearbySellers(@RequestParam Double sourceLat, @RequestParam Double sourceLng,
                                               @RequestParam Double elevation,
@@ -123,6 +154,11 @@ public class SellerController {
         return ResponseEntity.ok(sellerDTOS);
     }
 
+    /**
+     * Get all categories of products sold by nearby sellers.
+     * @param location
+     * @return
+     */
     @GetMapping("/getNearBySellerCategories")
     public ResponseEntity<?> getNearbyCategories(@RequestBody Location location){
         return ResponseEntity.ok(sellerService.getNearbySellersCategory(location.getLatitude(), location.getLongitude(),

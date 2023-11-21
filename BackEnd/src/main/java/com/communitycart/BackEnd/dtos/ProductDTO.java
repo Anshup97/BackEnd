@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Used for product details.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

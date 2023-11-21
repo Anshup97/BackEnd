@@ -5,6 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Order items DTO represents items ordered by a customer.
+ * OrderDTO has list of OrderItemDTO.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

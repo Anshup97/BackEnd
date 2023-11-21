@@ -100,6 +100,10 @@ public class OrderService {
             List<OrderItem> orderItems = new ArrayList<>();
             double totalPrice = 0D;
             for(CartItem item: cartItems){
+                Product p = productRepository.findProductByProductId(item.getProduct().getProductId());
+                if(item.getQuantity() > p.getProductQuantity()){
+                    return null;
+                }
                 OrderItem orderItem = new OrderItem();
                 orderItem.setProduct(item.getProduct());
                 orderItem.setQuantity(item.getQuantity());
@@ -108,7 +112,6 @@ public class OrderService {
                 totalPrice += tot;
                 orderItem.setTotalPrice(tot);
                 orderItems.add(orderItem);
-                Product p = productRepository.findProductByProductId(item.getProduct().getProductId());
                 p.setProductQuantity(p.getProductQuantity()-item.getQuantity());
                 productRepository.save(p);
             }

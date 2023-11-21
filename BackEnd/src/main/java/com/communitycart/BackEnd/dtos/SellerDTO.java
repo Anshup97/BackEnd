@@ -10,6 +10,11 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Seller DTO.
+ * Used while creating seller, updating seller details and returning seller
+ * details to the frontend.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

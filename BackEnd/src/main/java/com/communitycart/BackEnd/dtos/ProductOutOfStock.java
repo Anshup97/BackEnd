@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * DTO used for marking a product out of stock.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

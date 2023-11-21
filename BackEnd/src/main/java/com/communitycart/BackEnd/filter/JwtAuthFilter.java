@@ -16,12 +16,29 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JwtAuthFilter filters every request coming to the backend server.
+ * The filter checks if the user is authenticated or not to perform
+ * the request.
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private JWTService jwtService;
     @Autowired
     private UserInfoUserDetailsService userInfoUserDetailsService;
+
+    /**
+     * If bearer token is passed in Authorization header of the request, the method
+     * extracts the username from the payload of the authorization header. Fetches
+     * the user from the database. Validqtes the username and whether the token is
+     * not expired.
+     * @param request
+     * @param response
+     * @param filterChain
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");

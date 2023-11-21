@@ -42,7 +42,10 @@ public class SecurityConfig {
     }
 
     /**
-     * Enables HTTP security in Spring
+     * Enables HTTP security in Spring.
+     * Authorizes Http request by checking JWT token issued to the user.
+     * The configuration makes sure any request to the application is authenticated
+     * with form based login or HTTP basic authentication.
      * @param http
      * @return
      * @throws Exception
@@ -63,12 +66,20 @@ public class SecurityConfig {
                 .build();
     }
 
-
+    /**
+     * BCryptPasswordEncoder is used to encode user's password before saving in database.
+     * @return PasswordEncoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * AuthenticationProvider bean for user authentication.
+     * Used for checking if user is authenticated for API request.
+     * @return
+     */
     @Bean
     public org.springframework.security.authentication.AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
@@ -76,6 +87,15 @@ public class SecurityConfig {
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return (org.springframework.security.authentication.AuthenticationProvider) authenticationProvider;
     }
+
+    /**
+     * AuthenticationManager is the main interface for authentication.
+     * It loads user details and we call the authenticate method to authenticate
+     * an user.
+     * @param config
+     * @return
+     * @throws Exception
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

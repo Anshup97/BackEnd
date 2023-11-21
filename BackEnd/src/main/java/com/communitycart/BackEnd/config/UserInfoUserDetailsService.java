@@ -8,10 +8,21 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+/**
+ * Loads the user from the database.
+ */
 @Component
 public class UserInfoUserDetailsService implements UserDetailsService {
     @Autowired
     private UsersRepository usersRepository;
+
+    /**
+     * Loads user from database.
+     * Used for authentication only.
+     * @param username
+     * @return
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = usersRepository.findByEmailId(username);

@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Address DTO class for exchanging address of users between frontend and backend.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

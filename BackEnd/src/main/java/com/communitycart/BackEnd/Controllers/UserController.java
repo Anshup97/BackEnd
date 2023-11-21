@@ -30,6 +30,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+/**
+ * API to manage users (both Customer and Seller).
+ */
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -42,10 +45,18 @@ public class UserController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private SellerService sellerService;
+
+    //Test endpoint to check if server is running or not.
     @GetMapping("/")
     public ResponseEntity<String> helloWorld(){
         return new ResponseEntity<>("Hello!!", HttpStatus.OK);
     }
+
+    /**
+     * Authenticates both seller and customer and returns jwt token.
+     * @param authRequest
+     * @return
+     */
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest){
         if(authRequest.isSso()){
@@ -67,6 +78,10 @@ public class UserController {
         return new ResponseEntity<>( null,
                 HttpStatus.OK);
     }
+
+    /*
+    Get user role ('BUYER' or 'SELLER').
+     */
     @GetMapping("/getUser/{emailId}")
     public ResponseEntity<?> getRole(@PathVariable String emailId){
         User user = userService.getUser(emailId);
@@ -77,7 +92,10 @@ public class UserController {
     }
 
 
-
+    /*
+    Add new seller and return the created seller object.
+    If there is an existing seller with same email, then return null.
+     */
     @CrossOrigin
     @PostMapping(value = "/addSeller")
     public ResponseEntity<SellerDTO> addSeller(@RequestBody SellerDTO seller)
@@ -91,6 +109,10 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
+    /*
+    Upload seller and customer profile photo.
+    Saved in local.
+     */
     @PostMapping(value = "/uploadPhoto/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> uploadPhoto(@RequestParam("email") String email,
                                               @RequestPart("profilePhoto")MultipartFile profilePhoto)
@@ -108,7 +130,9 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-
+    /*
+    Delete seller profile.
+     */
     @PostMapping("/deleteSeller")
     public ResponseEntity<?> deleteSeller(@RequestBody SellerDTO seller){
         User user = userService.getUser(seller.getEmail());
@@ -119,7 +143,9 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-
+    /*
+    Update seller details.
+     */
     @PostMapping("/updateSeller")
     public ResponseEntity<?> updateSeller(@RequestBody Seller seller){
         User user = userService.getUser(seller.getEmail());
@@ -130,6 +156,9 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
+    /*
+    Get seller by sellerId.
+     */
     @GetMapping("/getSeller")
     public ResponseEntity<List<SellerDTO>> getSeller(@RequestParam(name = "sellerId", required = false) Long sellerId){
         if(sellerId == null){
@@ -142,6 +171,12 @@ public class UserController {
         return new ResponseEntity<>(List.of(sellerDTO), HttpStatus.OK);
     }
 
+    /*
+    Forgot Password feature for all the users.
+    An otp is sent to the email and the user has to verify the otp.
+    This endpoint triggers the OTP email and also returns the OTP to the
+    frontend for verification.
+     */
     @PostMapping("/forgotPassword")
     public ResponseEntity<?> forgotPassword(@RequestParam String email){
         String otp = userService.forgotPassword(email);
@@ -151,7 +186,11 @@ public class UserController {
         return ResponseEntity.ok(otp);
     }
 
-
+    /*
+    If the OTP is verified successfully, this endpoint is called
+    which updates the new password. Password is always encoded before
+    storing in the database.
+     */
     @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody AuthRequest authRequest){
         User user = userService.changePassword(authRequest.getEmail(), authRequest.getPassword());

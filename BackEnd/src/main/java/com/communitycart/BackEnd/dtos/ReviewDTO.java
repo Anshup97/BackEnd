@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Review DTO for product review and rating.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
