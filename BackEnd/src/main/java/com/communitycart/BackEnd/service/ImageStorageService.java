@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * Used to upload customised Category photo to database.
+ */
 @Service
 public class ImageStorageService {
 

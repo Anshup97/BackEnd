@@ -14,19 +14,16 @@ import com.communitycart.BackEnd.repository.ProductRepository;
 import com.communitycart.BackEnd.repository.SellerRepository;
 import com.communitycart.BackEnd.utils.CalculateDistance;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.internal.bytebuddy.matcher.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Seller service for managing different seller services.
+ */
 @Service
 public class SellerService {
 
@@ -46,12 +43,13 @@ public class SellerService {
     private ProductRepository productRepository;
 
     @Autowired
-    private FIleStorage fIleStorage;
+    private FileStorageService fIleStorageService;
 
-    public ModelMapper getMapper(){
-        return new ModelMapper();
-    }
-
+    /**
+     * Get categories of all products sold by the seller.
+     * @param sellerId
+     * @return
+     */
     public List<CategoryDTO> getCategoriesBySeller(Long sellerId){
         Optional<Seller> seller = sellerRepository.findById(sellerId);
         if(seller.isEmpty()){
@@ -74,11 +72,7 @@ public class SellerService {
                 .collect(Collectors.toList());
     }
 
-    public Seller deleteProduct(Long productId) {
-        sellerRepository.deleteById(productId);
-        return new Seller();
-    }
-
+    //Get image of a category.
     public byte[] getCategoryPhoto(Long categoryId) {
 
 
@@ -91,6 +85,12 @@ public class SellerService {
         return null;
     }
 
+    /**
+     * Add a product.
+     * Can be used by seller only.
+     * @param product
+     * @return
+     */
     public ProductDTO addProduct(ProductDTO product){
         Seller seller = sellerRepository.findById(product.getSellerId()).get();
         Product productEntity = new ModelMapper().map(product, Product.class);
@@ -106,8 +106,16 @@ public class SellerService {
 
     }
 
+    /**
+     * Upload product image.
+     * Product image is stored in the local server.
+     * @param productId
+     * @param productImage
+     * @return
+     * @throws Exception
+     */
     public String uploadProductImage(Long productId, MultipartFile productImage) throws Exception {
-        String photoId = fIleStorage.saveImages("images/product", productImage, productId);
+        String photoId = fIleStorageService.saveImages("images/product", productImage, productId);
         Optional<Product> product = productRepository.findById(productId);
         if(!product.isPresent()){
             return "-1";
@@ -117,6 +125,14 @@ public class SellerService {
         return photoId;
     }
 
+    /**
+     * Get product list of a seller filtered by categoryId.
+     * If categoryId is null, return all the products sold by
+     * the seller.
+     * @param email
+     * @param categoryId
+     * @return
+     */
     public List<ProductDTO> getProductsBySeller(String email, Long categoryId) {
         List<Product> productList = sellerRepository.findByEmail(email).getProducts();
         List<ProductDTO> res = new ArrayList<>();
@@ -137,6 +153,11 @@ public class SellerService {
         }
     }
 
+    /**
+     * Update product details.
+     * @param productDTO
+     * @return
+     */
     public ProductDTO updateProduct(ProductDTO productDTO){
         Product productEntity = productRepository.findById(productDTO.getProductId()).get();
         productEntity.setProductName(productDTO.getProductName());
@@ -148,6 +169,10 @@ public class SellerService {
         return new ModelMapper().map(productRepository.save(productEntity), ProductDTO.class);
     }
 
+    /**
+     * Get all sellers.
+     * @return
+     */
     public List<SellerDTO> getAllSellers(){
         List<Seller> sellers = sellerRepository.findAll();
         List<SellerDTO> sellerDTOS = new ArrayList<>();
@@ -157,6 +182,13 @@ public class SellerService {
         return sellerDTOS;
     }
 
+    /**
+     * Get nearby sellers according to the location of the customer.
+     * @param lat
+     * @param longi
+     * @param el
+     * @return
+     */
     public List<SellerDTO> getNearbySellers(Double lat, Double longi, Double el){
         List<Seller> sellers = sellerRepository.findAll();
 //        for(Seller s: sellers){
@@ -172,6 +204,13 @@ public class SellerService {
                 .toList();
     }
 
+    /**
+     * Get product categories of nearby sellers according to the location of the customer.
+     * @param lat
+     * @param longi
+     * @param el
+     * @return
+     */
     public List<CategoryDTO> getNearbySellersCategory(Double lat, Double longi, Double el){
         List<Seller> sellers = sellerRepository.findAll();
         sellers = sellers.stream()
@@ -190,7 +229,12 @@ public class SellerService {
                 .collect(Collectors.toList());
     }
 
-
+    /**
+     * Get nearby sellers who are selling products of that categoryId.
+     * @param location
+     * @param categoryId
+     * @return
+     */
     public List<SellerDTO> getNearbySellersByCategory(Location location, Long categoryId) {
         List<Seller> sellers = sellerRepository.findAll();
         sellers = sellers.stream()

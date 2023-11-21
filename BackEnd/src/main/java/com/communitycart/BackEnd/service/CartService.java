@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Cart service class to manage cart and cart items of a customer.
+ */
 @Service
 public class CartService {
 
@@ -35,9 +38,16 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
+    //ModelMapper is used to map Entity object to dto object.
     public ModelMapper mapper(){
         return new ModelMapper();
     }
+
+    /**
+     * Get cart along with cart items added to the cart by the customer.
+     * @param customerId
+     * @return
+     */
     public CartDTO getCart(Long customerId) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer == null){
@@ -53,6 +63,13 @@ public class CartService {
         return cartDTO;
     }
 
+    /**
+     * Add item to the cart.
+     * If the item is already present, update the quantity.
+     * @param customerId
+     * @param item
+     * @return
+     */
     public CartDTO addToCart(Long customerId, CartItemDTO item) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer == null){
@@ -96,6 +113,13 @@ public class CartService {
         return mapper().map(customerRepository.save(customer).getCart(), CartDTO.class);
     }
 
+    /**
+     * Update cart items.
+     * Deletes existing items in the cart and add new items.
+     * @param customerId
+     * @param items
+     * @return
+     */
     public CartDTO updateCart(Long customerId, List<CartItemDTO> items) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer == null){
@@ -108,6 +132,13 @@ public class CartService {
         return cart;
     }
 
+    /**
+     * If productId is null, delete all cart items.
+     * Else delete item from cart whose productId matches.
+     * @param customerId
+     * @param productId
+     * @return
+     */
     @Transactional
     public CartDTO deleteFromCart(Long customerId, Long productId) {
         Customer customer = customerRepository.findByCustomerId(customerId);

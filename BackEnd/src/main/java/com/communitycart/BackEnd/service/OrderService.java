@@ -22,6 +22,9 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Manages order placing, order updates etc.
+ */
 @Service
 public class OrderService {
 
@@ -46,8 +49,10 @@ public class OrderService {
     @Value("${STRIPE_SECRET_KEY}")
     private String secret;
 
+    //ModelMapper to map Order object to OrderDTO object.
     public ModelMapper mapper(){ return new ModelMapper(); }
 
+    //Custom entity to dto mapping method.
     public OrderDTO customMap(Order order){
         OrderDTO dto = new OrderDTO();
         dto.setOrderId(order.getOrderId());
@@ -71,6 +76,15 @@ public class OrderService {
         return dto;
     }
 
+    /**
+     * Place order places an order and return the order details.
+     * Saves order details in the database.
+     * Triggers order confirmation email to the customer.
+     * @param customerId
+     * @param paymentMethod
+     * @param sessionId
+     * @return
+     */
     public OrderDTO placeOrder(Long customerId, String paymentMethod, String sessionId) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         if(customer == null){
@@ -141,6 +155,12 @@ public class OrderService {
         return null;
     }
 
+    /**
+     * Get list of orders for both seller or customer.
+     * @param customerId
+     * @param sellerId
+     * @return
+     */
     public List<OrderDTO> getOrders(Long customerId, Long sellerId){
         List<OrderDTO> orderDTOS = new ArrayList<>();
         if(sellerId == null){
@@ -158,6 +178,7 @@ public class OrderService {
         return orderDTOS;
     }
 
+    //Get order by Id.
     public OrderDTO getOrderById(Long orderId){
         Order order = orderRepository.findByOrderId(orderId);
         if(order == null){
@@ -166,6 +187,14 @@ public class OrderService {
         return customMap(order);
     }
 
+    /**
+     * Create stripe session for payment.
+     * Add product details for checkout.
+     * Add total price of the order items.
+     * @param customerId
+     * @return
+     * @throws StripeException
+     */
     public Session createSession(Long customerId) throws StripeException {
         String successUrl = url + "payment/success";
         String failedUrl = url + "payment/failed";
@@ -194,6 +223,12 @@ public class OrderService {
         return Session.create(params);
     }
 
+    /**
+     * Add product details as Stripe Lineitems so that it can be
+     * displayed in the payment page.
+     * @param ci
+     * @return
+     */
     private SessionCreateParams.LineItem createSessionLineItem(CartItem ci) {
         return SessionCreateParams.LineItem.builder()
                 .setQuantity(ci.getQuantity())
@@ -201,6 +236,12 @@ public class OrderService {
                 .build();
     }
 
+    /**
+     * Add product price details as Stripe Lineitems so that it can be
+     * displayed in the payment page.
+     * @param ci
+     * @return
+     */
     private SessionCreateParams.LineItem.PriceData createPriceData(CartItem ci) {
         double price = ci.getProduct().getProductPrice();
         return SessionCreateParams.LineItem.PriceData.builder()
@@ -213,6 +254,13 @@ public class OrderService {
                 .build();
     }
 
+    /**
+     * Update order for the seller to update order details such as
+     * order delivery date, order status, delivered order payment status
+     * and triggeres appropriate mails to the customer.
+     * @param updateOrderBySeller
+     * @return
+     */
     public OrderDTO updateOrder(UpdateOrderBySeller updateOrderBySeller) {
         Order order = orderRepository.findByOrderId(updateOrderBySeller.getOrderId());
         if(order == null){

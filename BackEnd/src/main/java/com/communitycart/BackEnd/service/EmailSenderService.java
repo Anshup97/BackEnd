@@ -19,6 +19,10 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+/**
+ * Service class to send emails to customers
+ * and sellers.
+ */
 @Service
 public class EmailSenderService {
 
@@ -28,13 +32,19 @@ public class EmailSenderService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    private TemplateEngine templateEngine;
-
     @Autowired
     private ThymeLeafService thymeLeafService;
 
+    //Application email id.
     private final String from = "cartcommunityltd@gmail.com";
 
+    /**
+     * Used to send simple email - plain text subject and body.
+     * Used for sending OTP for password change.
+     * @param toEmail
+     * @param body
+     * @param subject
+     */
     public void sendSimpleEmail(String toEmail,
                                 String body,
                                 String subject) {
@@ -49,32 +59,13 @@ public class EmailSenderService {
         System.out.println("Mail Send...");
     }
 
-    public void sendEmailWithAttachment(String toEmail,
-                                        String body,
-                                        String subject,
-                                        String attachment) throws MessagingException {
-
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-
-        MimeMessageHelper mimeMessageHelper
-                = new MimeMessageHelper(mimeMessage, true);
-
-        mimeMessageHelper.setFrom("spring.email.from@gmail.com");
-        mimeMessageHelper.setTo(toEmail);
-//        mimeMessageHelper.setText(thymeLeafService.createContent());
-        mimeMessageHelper.setSubject(subject);
-
-        FileSystemResource fileSystem
-                = new FileSystemResource(new File(attachment));
-
-        mimeMessageHelper.addAttachment(fileSystem.getFilename(),
-                fileSystem);
-
-        mailSender.send(mimeMessage);
-        System.out.println("Mail Send...");
-
-    }
-
+    /**
+     * Used to send emails with body as HTML.
+     * Used to send order confirmation emails to customers.
+     * Template is present in resources/templates folder.
+     * Details are sent dynamically to the template using Thymeleaf.
+     * @param order
+     */
     @Async
     public void sendHtmlEmail(Order order) {
         try {
@@ -97,6 +88,14 @@ public class EmailSenderService {
         }
     }
 
+    /**
+     * Used to send emails with body as HTML.
+     * Used to send order delivery date emails to customers.
+     * Template is present in resources/templates folder.
+     * Details are sent dynamically to the template using Thymeleaf.
+     * @param order
+     * @param date
+     */
     public void sendUpdateDeliveryDate(Order order, String date) {
         try {
             Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
@@ -120,6 +119,14 @@ public class EmailSenderService {
         }
     }
 
+    /**
+     * Used to send emails with body as HTML.
+     * Used to send order delivery status to customers.
+     * Template is present in resources/templates folder.
+     * Details are sent dynamically to the template using Thymeleaf.
+     * @param order
+     * @param status
+     */
     public void sendDeliveryStatus(Order order, String status) {
         try {
             Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
@@ -152,6 +159,14 @@ public class EmailSenderService {
         }
     }
 
+    /**
+     * Used to send emails with body as HTML.
+     * Used to send order delivery confirmation to customers.
+     * Template is present in resources/templates folder.
+     * Details are sent dynamically to the template using Thymeleaf.
+     * @param order
+     * @param status
+     */
     public void sendDeliveredStatus(Order order, String status) {
         try {
             Customer customer = customerRepository.findByCustomerId(order.getCustomerId());

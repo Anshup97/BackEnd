@@ -4,14 +4,9 @@ import com.communitycart.BackEnd.dtos.CategoryDTO;
 import com.communitycart.BackEnd.dtos.Location;
 import com.communitycart.BackEnd.dtos.ProductDTO;
 import com.communitycart.BackEnd.dtos.SellerDTO;
-import com.communitycart.BackEnd.entity.Category;
-import com.communitycart.BackEnd.entity.Product;
-import com.communitycart.BackEnd.entity.Seller;
-import com.communitycart.BackEnd.entity.User;
 import com.communitycart.BackEnd.service.CategoryService;
-import com.communitycart.BackEnd.service.FIleStorage;
+import com.communitycart.BackEnd.service.FileStorageService;
 import com.communitycart.BackEnd.service.SellerService;
-import com.communitycart.BackEnd.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,13 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +33,7 @@ public class SellerController {
     private CategoryService categoryService;
 
     @Autowired
-    private FIleStorage fIleStorage;
+    private FileStorageService fIleStorageService;
 
     /*
     Get list of all sellers.

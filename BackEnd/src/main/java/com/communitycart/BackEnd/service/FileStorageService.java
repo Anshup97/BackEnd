@@ -4,14 +4,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Used for uploading customer & seller profile photos
+ * and product images.
+ */
 @Service
-public class FIleStorage {
+public class FileStorageService {
 
+    //Save product images in local webapps folder.
     public String saveImages(String loc, MultipartFile file, Long productId) throws Exception {
         Path path = Paths.get("C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\images\\product");
         try{
@@ -36,6 +40,7 @@ public class FIleStorage {
 
     }
 
+    //Save seller profile photo
     public String saveSellerPhoto(MultipartFile file, Long sellerId) throws Exception {
         Path path = Paths.get("C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\images\\shop");
         try{
@@ -60,7 +65,7 @@ public class FIleStorage {
 
     }
 
-
+    //Save customer photo.
     public String saveCustomerPhoto(MultipartFile file, Long customerId) throws Exception {
         Path path = Paths.get("C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\images\\customers");
         try{

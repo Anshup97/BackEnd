@@ -11,15 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 @Service
@@ -33,7 +27,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private FIleStorage fIleStorage;
+    private FileStorageService fIleStorageService;
     @Autowired
     private EmailSenderService emailService;
 
@@ -160,7 +154,7 @@ public class UserService {
     public SellerDTO uploadPhoto(String email, MultipartFile profilePhoto) throws Exception {
         Seller seller = sellerRepository.findByEmail(email);
         if(seller != null){
-            String url = fIleStorage.saveSellerPhoto(profilePhoto, seller.getSellerId());
+            String url = fIleStorageService.saveSellerPhoto(profilePhoto, seller.getSellerId());
             url = "http://172.17.84.65:8080/images/shop/" + url;
             seller.setShopPhotoUrl(url);
             return new ModelMapper().map(sellerRepository.save(seller), SellerDTO.class);
@@ -172,7 +166,7 @@ public class UserService {
     public CustomerDTO uploadCustomerPhoto(String email, MultipartFile profilePhoto) throws Exception {
         Customer customer = customerRepository.findCustomerByEmail(email);
         if(customer != null){
-            String url = fIleStorage.saveCustomerPhoto(profilePhoto, customer.getCustomerId());
+            String url = fIleStorageService.saveCustomerPhoto(profilePhoto, customer.getCustomerId());
             url = "http://172.17.84.65:8080/images/customers/" + url;
             customer.setCustomerImageUrl(url);
             return new ModelMapper().map(customerRepository.save(customer), CustomerDTO.class);

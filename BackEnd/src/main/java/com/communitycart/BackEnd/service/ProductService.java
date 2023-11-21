@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Product service class for serving various product
+ * functionalities.
+ */
 @Service
 public class ProductService {
 
@@ -27,14 +31,15 @@ public class ProductService {
     private SellerRepository sellerRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Autowired
     private ReviewRepository reviewRepository;
 
     @Autowired
     private OrderService orderService;
 
+    /**
+     * Get list of all products.
+     * @return
+     */
     public List<ProductDTO> getAllProducts(){
         List<Product> productList = productRepository.findAll();
         List<ProductDTO> productDTOS = new ArrayList<>();
@@ -44,6 +49,12 @@ public class ProductService {
         return productDTOS;
     }
 
+    /**
+     * Get a filtered list of products by sellerId and categoryId.
+     * @param sellerId
+     * @param categoryId
+     * @return
+     */
     public List<ProductDTO> getProductsBySellerIdAndCategoryId(Long sellerId, Long categoryId){
         if(sellerId == null){
             if(categoryId != null){
@@ -74,11 +85,21 @@ public class ProductService {
         return null;
     }
 
+    /**
+     * Get product by productId
+     * @param productId
+     * @return
+     */
     public ProductDTO getProduct(Long productId) {
         Optional<Product> product = productRepository.findById(productId);
         return product.map(value -> new ModelMapper().map(value, ProductDTO.class)).orElse(null);
     }
 
+    /**
+     * Update product details.
+     * @param productDTO
+     * @return
+     */
     public ProductDTO updateProduct(ProductDTO productDTO){
         Optional<Product> product = productRepository.findById(productDTO.getProductId());
         if(product.isEmpty()){
@@ -88,6 +109,11 @@ public class ProductService {
         return productDTO;
     }
 
+    /**
+     * Delete product
+     * @param productId
+     * @return
+     */
     public ProductDTO deleteProduct(Long productId) {
         Product product = productRepository.findProductByProductId(productId);
         System.out.println("Product --> " + product);
@@ -99,6 +125,12 @@ public class ProductService {
         return productDTO;
     }
 
+    /**
+     * Update rating of a product.
+     * When the user gives a review and rating, this method is called
+     * to update the rating of the product.
+     * @param productId
+     */
     public void updateRating(Long productId){
         Product product = productRepository.findProductByProductId(productId);
         if(product != null){
@@ -117,6 +149,14 @@ public class ProductService {
         }
     }
 
+    /**
+     * Returns if a customer can review a product.
+     * Returns true if a customer has purchased the product
+     * else returns false.
+     * @param customerId
+     * @param productId
+     * @return
+     */
     public boolean canReview(Long customerId, Long productId){
         List<OrderDTO> orders = orderService.getOrders(customerId, null);
         for(OrderDTO o: orders){
@@ -130,6 +170,13 @@ public class ProductService {
         return false;
     }
 
+    /**
+     * Post a review for a product.
+     * If a customer has already reviewed a product, then the old review
+     * will be updated.
+     * @param review
+     * @return
+     */
     public ReviewDTO postReview(ReviewDTO review) {
         Product product = productRepository.findProductByProductId(review.getProductId());
         if(product == null || !canReview(review.getCustomerId(), review.getProductId())){
@@ -151,6 +198,11 @@ public class ProductService {
         return dto;
     }
 
+    /**
+     * Get list of reviews of a product.
+     * @param productId
+     * @return
+     */
     public List<ReviewDTO> getReviews(Long productId){
         Product product = productRepository.findProductByProductId(productId);
         if(product == null){
@@ -165,6 +217,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    //Get review by reviewId.
     public ReviewDTO getReview(Long reviewId){
         Review review = reviewRepository.findByReviewId(reviewId);
         if(review == null){
@@ -173,6 +226,7 @@ public class ProductService {
         return new ModelMapper().map(review, ReviewDTO.class);
     }
 
+    //Delete a review.
     public void deleteReview(Long reviewId){
         Review review = reviewRepository.findByReviewId(reviewId);
         Long productId = review.getProductId();
@@ -180,6 +234,12 @@ public class ProductService {
         updateRating(productId);
     }
 
+    /**
+     * Set product out of stock.
+     * Can be used by seller only.
+     * @param stock
+     * @return
+     */
     public ProductDTO setOutOfStock(ProductOutOfStock stock) {
         Product product = productRepository.findProductByProductId(stock.getProductId());
         if(product == null || !product.getSellerId().equals(stock.getSellerId())){

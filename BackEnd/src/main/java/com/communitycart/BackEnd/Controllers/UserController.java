@@ -7,7 +7,6 @@ import com.communitycart.BackEnd.entity.Address;
 import com.communitycart.BackEnd.entity.Customer;
 import com.communitycart.BackEnd.entity.Seller;
 import com.communitycart.BackEnd.entity.User;
-import com.communitycart.BackEnd.service.ImageStorageService;
 import com.communitycart.BackEnd.service.JWTService;
 import com.communitycart.BackEnd.service.SellerService;
 import com.communitycart.BackEnd.service.UserService;
