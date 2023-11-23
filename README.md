@@ -1,0 +1,5 @@
+# BackEnd
+Community Cart is a user-friendly web application that brings the power of online shopping to neighborhood stores. This project introduces an innovative e-commerce platform tailored to the needs of local shop owners, facilitating their seamless integration into the digital marketplace. The proposed platform bridges traditional brick-and-mortar stores and the online shopping realm, empowering local businesses to register and offer their products through an intuitive web interface. By doing so, the platform promotes economic growth at the community level while providing convenience to customers.
+The platform's key features include a user-friendly registration process for shop owners, allowing them to showcase their products through detailed listings. A unique shop-wise view allows customers to compare the prices offered by all local merchants, unlike the item-wise view offered by traditional e-commerce applications. Secure payment alternatives are provided in the app to facilitate smooth transactions. The application also has a rating/review system to build customer trust.
+
+This is the backend code of the project using Spring Boot 3.
