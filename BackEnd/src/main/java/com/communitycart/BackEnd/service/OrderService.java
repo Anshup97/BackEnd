@@ -305,4 +305,31 @@ public class OrderService {
         Order order1 = orderRepository.save(order);
         return customMap(order1);
     }
+
+    /**
+     * Cancel order feature for customer.
+     * @param orderId
+     * @return
+     */
+    public OrderDTO cancelOrder(Long orderId){
+        Order order = orderRepository.findByOrderId(orderId);
+        if(order == null){
+            return null;
+        }
+        if(!order.getStatus().equalsIgnoreCase("Packed") && !order.getStatus().equalsIgnoreCase("Placed")){
+            return null;
+        }
+        List<OrderItem> items = order.getItems();
+        for(OrderItem item: items){
+            Product p = item.getProduct();
+            Product product = productRepository.findProductByProductId(p.getProductId());
+            product.setProductQuantity(product.getProductQuantity() + item.getQuantity());
+            productRepository.save(product);
+        }
+        order.setStatus("Cancelled");
+        emailSenderService.sendCancelledStatus(order, "cancelled");
+        emailSenderService.sendCancelledStatusSeller(order, "cancelled");
+        return customMap(orderRepository.save(order));
+
+    }
 }

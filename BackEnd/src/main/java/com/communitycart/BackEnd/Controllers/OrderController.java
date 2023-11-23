@@ -89,4 +89,10 @@ public class OrderController {
         OrderDTO orderDTO = service.updateOrder(updateOrderBySeller);
         return ResponseEntity.ok(orderDTO);
     }
+
+    @PutMapping("/cancelOrder")
+    public ResponseEntity<?> cancelOrder(@RequestParam Long orderId){
+        OrderDTO orderDTO = service.cancelOrder(orderId);
+        return ResponseEntity.ok(orderDTO);
+    }
 }

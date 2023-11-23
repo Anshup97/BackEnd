@@ -2,7 +2,9 @@ package com.communitycart.BackEnd.service;
 
 import com.communitycart.BackEnd.entity.Customer;
 import com.communitycart.BackEnd.entity.Order;
+import com.communitycart.BackEnd.entity.Seller;
 import com.communitycart.BackEnd.repository.CustomerRepository;
+import com.communitycart.BackEnd.repository.SellerRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class EmailSenderService {
 
     @Autowired
     private ThymeLeafService thymeLeafService;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
     //Application email id.
     private final String from = "cartcommunityltd@gmail.com";
@@ -181,6 +186,50 @@ public class EmailSenderService {
                     Map.of("orderId", order.getOrderId(),
                             "name",
                             customer.getName())), true);
+            mailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+
+    public void sendCancelledStatus(Order order, String status) {
+        try {
+            Seller seller = sellerRepository.findById(order.getSellerId()).get();
+            Customer customer = customerRepository.findByCustomerId(order.getCustomerId());
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            helper.setPriority(1);
+            helper.setSubject("Your order " + order.getOrderId() + " is " + status + ".");
+            helper.setFrom(from);
+            helper.setTo(customer.getEmail());
+            helper.setText(thymeLeafService.createContent("cancelled.html",
+                    Map.of("orderId", order.getOrderId(),
+                            "name",
+                            customer.getName())), true);
+            mailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+    public void sendCancelledStatusSeller(Order order, String status) {
+        try {
+            Seller seller = sellerRepository.findById(order.getSellerId()).get();
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            helper.setPriority(1);
+            helper.setSubject("Order " + order.getOrderId() + " is " + status + ".");
+            helper.setFrom(from);
+            helper.setTo(seller.getEmail());
+            helper.setText(thymeLeafService.createContent("cancelledSeller.html",
+                    Map.of("orderId", order.getOrderId(),
+                            "name",
+                            seller.getName())), true);
             mailSender.send(message);
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
